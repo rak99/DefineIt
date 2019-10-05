@@ -1,11 +1,11 @@
 .selectedWord {
-    position: absolute;
+    position: fixed;
       background: rgb(1, 2, 2);
     z-index: 1;
     width: fit-content;
     color: white;
     padding: 1px;
-    margin-top: 8px;
+    margin-top: 20px;
     font-family: Calibri;
 	font-size: 15px;
 	min-height: 500px;

@@ -9,13 +9,13 @@
                "<all_urls>"
             ],
             "js": ["./js/jquery.js", "./js/content.js"],
-            "css": ["./css/materialize.min.css", "./css/styles.css"]
+            "css": ["./css/styles.css"]
         }
     ],
     "background": {
-        "scripts": ["./js/background.js", "./js/jquery.js",  "./js/materialize.min.js", "./js/chips.js", "./js/tooltips.js"]    
+        "scripts": ["./js/background.js", "./js/jquery.js"]
     },
-    "description": "Ever wondered what a word meant, but was too lazy to look it up, well no more! This extension makes it super easy to find the definition of those mysterious words, simply select the word with your mouse, and you're good to go",
+    "description": "Ever wondered what a word meant but was too lazy to look it up? Well no more! This extension makes it super easy to find the definition of those mysterious words - simply highlight the word with your mouse and you're good to go!",
     "author": "Rhenier Kloppers",
     "browser_action": {
         "default_icon": "./icons/256.png",
