@@ -12,8 +12,18 @@
 
 let popupNode = '';
 let boldPosition = '';
+let overlapWidth = 0;
 
 // !-- MAKE SURE NOT TO SEARCH FOR NUMBERS
+/* 
+document.addEventListener('scroll', function(e) {
+    if (document.getElementById('defineIt-popupNode')) {
+        document.getElementById('defineIt-popupNode').remove();
+        window.removeEventListener('mousedown', showPopup, false);
+        let popupNodePosition = popupNode.getBoundingClientRect();
+        popupNode.style.left = (boldPosition.left - popupNodePosition.left + 'px') + popupNode.style.width;
+    };
+}); */
 
 function getSelectionText(e) {
     var text = "";
@@ -35,6 +45,8 @@ function getSelectionText(e) {
         } else {
             boldPosition = bold.getBoundingClientRect();
         }
+
+        console.log(boldPosition);
         // Begin popup ---
         let popupNode = document.createElement('iframe');
         popupNode.src = `https://www.merriam-webster.com/dictionary/${range}`;
@@ -45,7 +57,17 @@ function getSelectionText(e) {
                 // Styling
                 popupNode.id = 'defineIt-popupNode';
                 range.insertNode(popupNode);
+                console.log(popupNode.getBoundingClientRect());
+                overlapWidth = $(document).width() - popupNode.getBoundingClientRect().x;
+                console.log(overlapWidth);
                 let rangeNode = range.startOffset;
+                if ( overlapWidth < 426 ) {
+                        if (document.getElementById('defineIt-popupNode')) {
+                            console.log('overlap', overlapWidth);
+                            popupNode.style.right = 426 - overlapWidth + 'px';
+                            console.log(popupNode.getBoundingClientRect().x - (426 - overlapWidth));
+                        }
+                }
                 const showPopup = () => {   
                     if ( document.getElementById('defineIt-popupNode') ) {
                         let popupNodePositions = popupNode.getBoundingClientRect();
