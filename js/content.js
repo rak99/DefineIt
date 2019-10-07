@@ -1,6 +1,7 @@
 /**
  * Popup content here
  * Make a nice theme, when text is highlighted the popup should show the word with a dropdown, the dropdown then displays all information about the word
+ * Top has been disregarded in favour of an embedded dictionary page, atm hosted on Merriam Webster.
  */
 
 // !-- Trim the selection to eliminate spaces, also - stop popup from executing if there are more than 2 words, or if the user wants maybe they can enable a beta mode where mutliple words can be selected and there will be multiple words
@@ -25,7 +26,20 @@ document.addEventListener('scroll', function(e) {
     };
 }); */
 
+/* window.oncontextmenu = function () {
+    if (document.getElementById('defineIt-popupNode')) {
+        document.getElementById('defineIt-popupNode').remove();
+    }
+    return true;     // cancel default menu
+    } */
+
 function getSelectionText(e) {
+
+    // !-- TODO - Add scroll to base feature
+    // !-- Some selected words are not in their origin/base form, e.g playing is selected, but the popup website I use, Merriam-Webster, starts at the origin/base word
+    // in this case, play. Maybe find a way to search for the word 'Play' by searching for indexOf('Play') and the nodeName has to be an <h1> or something,
+    // do getBoundingClientRect() on it and scroll the popup down there, I'm pretty sure it's easy to do.
+
     var text = "";
     if (window.getSelection && window.getSelection().toString().trim().length > 0) {
         // !-- IMPORTANT, STOP DESELECTION SO USERS CAN'T COPY WHEN HIGHLIGHTED
@@ -41,12 +55,11 @@ function getSelectionText(e) {
         if (range.startContainer.nextSibling) {
             if (range.startContainer.nextSibling.toString() !== "[object Text]") {
                 boldPosition = range.startContainer.nextSibling.getBoundingClientRect();
-            } 
+            }
         } else {
             boldPosition = bold.getBoundingClientRect();
         }
 
-        console.log(boldPosition);
         // Begin popup ---
         let popupNode = document.createElement('iframe');
         popupNode.src = `https://www.merriam-webster.com/dictionary/${range}`;
@@ -59,30 +72,30 @@ function getSelectionText(e) {
                 range.insertNode(popupNode);
                 console.log(popupNode.getBoundingClientRect());
                 overlapWidth = $(document).width() - popupNode.getBoundingClientRect().x;
-                console.log(overlapWidth);
                 let rangeNode = range.startOffset;
                 if ( overlapWidth < 426 ) {
                         if (document.getElementById('defineIt-popupNode')) {
-                            console.log('overlap', overlapWidth);
                             popupNode.style.right = 426 - overlapWidth + 'px';
-                            console.log(popupNode.getBoundingClientRect().x - (426 - overlapWidth));
                         }
                 }
-                const showPopup = () => {   
-                    if ( document.getElementById('defineIt-popupNode') ) {
-                        let popupNodePositions = popupNode.getBoundingClientRect();
-                        let popupNodeLeftToRight = popupNodePositions.x + popupNodePositions.width;
-                        let popupNodeTopToBottom = popupNodePositions.y + popupNodePositions.height;
-                        var x = event.clientX;     // Get the horizontal coordinate
-                        var y = event.clientY;     // Get the vertical coordinate
-                        var coor = "X coords: " + x + ", Y coords: " + y;
-                        if ( ( x < (popupNodePositions.x) || x > popupNodeLeftToRight ) || y < (popupNodePositions.y) || y > popupNodeTopToBottom ) {
-                            // range.startContainer.childNodes[rangeNode].remove();
-                            document.getElementById('defineIt-popupNode').remove();
-                            $(bold).contents().unwrap();
-                            window.removeEventListener('mousedown', showPopup, false);
-                            let popupNodePosition = popupNode.getBoundingClientRect();
-                            popupNode.style.left = (boldPosition.left - popupNodePosition.left + 'px') + popupNode.style.width;
+                const showPopup = (e) => {
+                    if (e.which === 1) {
+                        console.log(e.which);
+                        if ( document.getElementById('defineIt-popupNode') ) {
+                            let popupNodePositions = popupNode.getBoundingClientRect();
+                            let popupNodeLeftToRight = popupNodePositions.x + popupNodePositions.width;
+                            let popupNodeTopToBottom = popupNodePositions.y + popupNodePositions.height;
+                            var x = event.clientX;     // Get the horizontal coordinate
+                            var y = event.clientY;     // Get the vertical coordinate
+                            var coor = "X coords: " + x + ", Y coords: " + y;
+                            if ( ( x < (popupNodePositions.x) || x > popupNodeLeftToRight ) || y < (popupNodePositions.y) || y > popupNodeTopToBottom ) {
+                                // range.startContainer.childNodes[rangeNode].remove();
+                                document.getElementById('defineIt-popupNode').remove();
+                                $(bold).contents().unwrap();
+                                window.removeEventListener('mousedown', showPopup, false);
+                                let popupNodePosition = popupNode.getBoundingClientRect();
+                                popupNode.style.left = (boldPosition.left - popupNodePosition.left + 'px') + popupNode.style.width;
+                            }
                         }
                     }
                 };
