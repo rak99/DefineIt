@@ -89,6 +89,8 @@ function getSelectionText(e) {
     // !-- then fetch it from there if it exists
     // !-- Also want to add a popup that lets you specific page or whole href, also add unblacklist if site is blacklisted think I said it here somewhere already
     // !-- Maybe add a keybind to it 
+    // !-- New feature to add is on right click (context menu) or e.which === 3, make opacity for popup very low, also maybe by default make it low and add a 
+    // !-- Node.onhover = function() = opacity = 1, but by default make it like 0.3 or something
     // in this case, play. Maybe find a way to search for the word 'Play' by searching for indexOf('Play') and the nodeName has to be an <h1> or something,
     // do getBoundingClientRect() on it and scroll the popup down there, I'm pretty sure it's easy to do.
 
@@ -106,6 +108,7 @@ function getSelectionText(e) {
             let highlight = window.getSelection(),
             bold = document.createElement('b'),
             range = highlight.getRangeAt(0);
+            bold.id = 'DefineItTextToBold';
             bold.style.fontWeight = 'unset'
 /*             if (range.startContainer.nextSibling) {
                 console.log()
@@ -128,8 +131,10 @@ function getSelectionText(e) {
             .then((res) => {
                 if (res.status !== 404) {
                     console.log(range.commonAncestorContainer.nodeName !== "P");
-                    if (range.commonAncestorContainer.nodeName !== "P") {
+                    if (range.commonAncestorContainer.nodeName !== "P" && ) {
+                        console.log(range);
                         range.surroundContents(bold);
+                        // !-- Gonna have to change this to do bottom way as well maybe
                         boldPosition = getCoords(bold);
                     } else {
                         console.log(range);
@@ -155,6 +160,14 @@ function getSelectionText(e) {
                     popupNode.className = "selectedWord";
                     // Styling
                     popupNode.id = 'defineIt-popupNode';
+                    popupNode.onmouseenter = function(e) {
+                        console.log('hello');
+                        popupNode.style.opacity = '1.0';
+                    }
+                    popupNode.onmouseleave = function(e) {
+                        popupNode.style.opacity = '';
+
+                    }
                     // !-- Old way that gets cropped --!
                     // range.insertNode(popupNode);
                     document.getElementsByTagName('body')[0].insertBefore(popupNode, document.getElementsByTagName('body')[0].firstChild);
