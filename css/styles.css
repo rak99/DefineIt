@@ -1,15 +1,15 @@
 .selectedWord {
     position: absolute;
       background: rgb(1, 2, 2);
-    z-index: 1;
+    z-index: 9999999;
     width: fit-content;
     color: white;
     padding: 1px;
     margin-top: 30px;
     font-family: Calibri;
 	font-size: 15px;
-	height: 500px;
-	width: 400px;
+	height: 400px;
+	width: 300px;
 	-moz-user-select: none;
 	-webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
@@ -19,6 +19,9 @@
             user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome and Opera */
 }
+table .sistemas:hover {
+	background: #1E1F26;
+  }
 .selectedWord:after, .selectedWord:before {
 	bottom: 100%;
 	left: 10%;
@@ -57,4 +60,8 @@
 	  -ms-user-select: none; /* Internet Explorer/Edge */
 		  user-select: none; /* Non-prefixed version, currently
 								supported by Chrome and Opera */
+}
+
+#DefineItTextToBold {
+	font-weight: unset;
 }
