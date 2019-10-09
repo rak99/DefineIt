@@ -15,6 +15,8 @@ let popupNode = '';
 let boldPosition = '';
 let overlapWidth = 0;
 let contextMenuExists = false;
+let rangeNew = '';
+let highlightNew = '';
 
 
 // Find element's position relative to the document (so if scrolled down this is very useful)
@@ -131,7 +133,7 @@ function getSelectionText(e) {
             .then((res) => {
                 if (res.status !== 404) {
                     console.log(range.commonAncestorContainer.nodeName !== "P");
-                    if (range.commonAncestorContainer.nodeName !== "P" && ) {
+                    if (range.commonAncestorContainer.nodeName !== "P") {
                         console.log(range);
                         range.surroundContents(bold);
                         // !-- Gonna have to change this to do bottom way as well maybe
@@ -154,6 +156,8 @@ function getSelectionText(e) {
                         boldPosition = getCoords(newBoldElement);
                         selectElement(newBoldElement);
                         console.log(boldPosition);
+                            highlightNew = window.getSelection(),
+                            rangeNew = highlight.getRangeAt(0);
                     }
                     // !-- Decide if we want to make height and width not a constant, atm getting height and width at this stage doesn't work, what we could do is define
                     // !-- it with js, that we can access it here, problem is media queries work nicely  
@@ -201,6 +205,11 @@ function getSelectionText(e) {
                                     let popupNodeTopToBottom = popupNodePositions.y + popupNodePositions.height;
                                     var x = event.clientX;     // Get the horizontal coordinate
                                     var y = event.clientY;     // Get the vertical coordinate
+                                    // rangeNew.contents().unwrap();
+                                    document.getElementById('DefineItTextToBold').removeAttribute('id');
+                                    // !-- Above fixed what bottom may be able to but better, not sure yet
+                                    // !-- document.getElementById('DefineItTextToBold').setAttribute('contenteditable',true);
+                                    // !-- document.execCommand("bold", false, null)
                                     $(bold).contents().unwrap();
                                     var coor = "X coords: " + x + ", Y coords: " + y;
                                     if ( ( x < (popupNodePositions.x) || x > popupNodeLeftToRight ) || y < (popupNodePositions.y) || y > popupNodeTopToBottom ) {
