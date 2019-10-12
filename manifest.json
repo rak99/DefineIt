@@ -8,19 +8,27 @@
             "matches": [
                "<all_urls>"
             ],
-            "js": ["./js/jquery.js", "./js/content.js"],
-            "css": ["./css/styles.css"]
+            "js": ["./js/jquery.js", "./js/content.js", "./js/popup.js"],
+            "css": ["./css/styles.css", "./css/popup.css"],
+            "exclude_matches": []
         }
     ],
     "background": {
-        "scripts": ["./js/background.js", "./js/jquery.js"]
+        "scripts": ["./js/background.js"]
     },
     "description": "Ever wondered what a word meant but was too lazy to look it up? Well no more! This extension makes it super easy to find the definition of those mysterious words - simply highlight the word with your mouse and you're good to go!",
     "author": "Rhenier Kloppers",
     "browser_action": {
         "default_icon": "./icons/256.png",
-        "default_title": "Live Alert"
+        "default_title": "Live Alert",
+        "default_popup": "./html/popup.html"
     },
     "permissions": [
-    ]
+        "file://*/*",
+        "tabs",
+        "activeTab",
+        "<all_urls>",
+        "storage"
+    ],
+    "content_security_policy": "default-src 'self'; connect-src *"
 }

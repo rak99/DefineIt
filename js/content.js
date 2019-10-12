@@ -11,13 +11,28 @@
 
 // Consider adding hover mode, check wikipedia functionality for idea on implementation
 
+/* chrome.runtime.onMessage.addListener(
+    function(request, sender, sendResponse) {
+        if (request.text === 'tabChanged') {
+            console.log('message found');
+            let currentWindowUrl = request.tabUrl;
+            console.log(currentWindowUrl);
+            chrome.runtime.sendMessage({text: 'blacklistSite', tabUrl: currentWindowUrl});
+        }
+    }
+); */
+
 let popupNode = '';
 let boldPosition = '';
 let overlapWidth = 0;
 let contextMenuExists = false;
 let rangeNew = '';
 let highlightNew = '';
-
+let popupDimensionsGetFromSync = '';
+let popupDimensionsResize = 0;
+let syncedPopupWidth = 0;
+let syncedPopupHeight = 0;
+let parsedStringifiedResult = 0;
 
 // Find element's position relative to the document (so if scrolled down this is very useful)
 function getCoords(elem) { // crossbrowser version
@@ -35,7 +50,7 @@ function getCoords(elem) { // crossbrowser version
     var top  = box.top +  scrollTop - clientTop;
     var left = box.left + scrollLeft - clientLeft;
     return { top: Math.round(top), left: Math.round(left) };
-}
+};
 
 function selectElement(element) {
     if (window.getSelection) {
@@ -49,6 +64,10 @@ function selectElement(element) {
         textRange.moveToElementText(element);
         textRange.select();
     }
+};
+
+function doThis() {
+    console.log('Hellooooooooooooooooo squadR');
 }
 
 // !-- MAKE SURE NOT TO SEARCH FOR NUMBERS
@@ -62,9 +81,9 @@ document.addEventListener('scroll', function(e) {
     };
 }); */
 
-window.oncontextmenu = function () {
+window.addEventListener('contextmenu', function() {
     contextMenuExists = true;
-}
+});
 
 function getSelectionText(e) {
 
@@ -93,6 +112,17 @@ function getSelectionText(e) {
     // !-- Maybe add a keybind to it 
     // !-- New feature to add is on right click (context menu) or e.which === 3, make opacity for popup very low, also maybe by default make it low and add a 
     // !-- Node.onhover = function() = opacity = 1, but by default make it like 0.3 or something
+    // !-- ----------------- 4 THINGS TO FOCUS ON NOW -----------------
+    // !-- New error, selecting plain text without whitespace then with, causes error FIX
+    // !-- Save resize size to localstorage or chrome.storage.sync
+        // !-- Check https://developers.google.com/web/updates/2016/10/resizeobserver for help on this
+        // !-- Works now but previous fix of pushing iframe to the left when it overlapped to the right now fails, look into it, consider dropping the feature.
+        // !-- BELOW IS LIKELY THE ISSUE
+        // !-- There's a bunch of unmodular code that relies on a linear width and height, fix it as it's bad principles.
+    // !-- Blacklist pages from extensions
+        // !-- Check https://gist.github.com/greatghoul/8120275 for help on this
+    // !-- check words for multiple dictionaries
+    // !-- MAYBE ADD A sponsored background-image or something
     // in this case, play. Maybe find a way to search for the word 'Play' by searching for indexOf('Play') and the nodeName has to be an <h1> or something,
     // do getBoundingClientRect() on it and scroll the popup down there, I'm pretty sure it's easy to do.
 
@@ -128,8 +158,33 @@ function getSelectionText(e) {
             
             // Begin popup ---
             let popupNode = document.createElement('iframe');
+            popupNode.className = "selectedWord";
+
+            chrome.storage.local.get(['popupDimensions'], function(result) {
+                console.log('Value currently is ' + JSON.stringify(result));
+                parsedStringifiedResult = JSON.parse(JSON.stringify(result));
+                console.log(parsedStringifiedResult);
+                syncedPopupWidth = parsedStringifiedResult.popupDimensions.width;
+                syncedPopupHeight = parsedStringifiedResult.popupDimensions.height;
+                if (syncedPopupWidth !== 0 && syncedPopupHeight !== 0) {
+                    popupNode.style.width = syncedPopupWidth + 'px';
+                    popupNode.style.height = syncedPopupHeight + 'px';
+                } else {
+                    popupNode.style.width = '350px';
+                    popupNode.style.height = '500px';
+                }
+            });
+            // !-- Add localStorage capture of resize
+
+            // !-- New idea, maybe try a bunch of dictionary websites, either at the same time, first one with a 200 response or something is used, or by order of if 404;
+            // !-- Like promises
             popupNode.src = `https://www.merriam-webster.com/dictionary/${text}`;
-            fetch(popupNode.src)
+            fetch(popupNode.src, { 
+                mode: 'cors',
+                headers: {
+                    "Access-Control-Allow-Origin" : "*"
+                  },
+             })
             .then((res) => {
                 if (res.status !== 404) {
                     console.log(range.commonAncestorContainer.nodeName !== "P");
@@ -143,7 +198,7 @@ function getSelectionText(e) {
                         let selectedText = window.getSelection().toString().trim();
                         let selectedTextLength = window.getSelection().toString().trim().length;
                         console.log(selectedText);
-                        let nodeOuterHTML = range.startContainer.nextSibling.outerHTML;
+                        let nodeOuterHTML = range.startContainer.parentElement.outerHTML;
                         console.log(nodeOuterHTML);
                         console.log(nodeOuterHTML.indexOf(selectedText));
                         let selectedTextIndex = nodeOuterHTML.indexOf(selectedText);
@@ -161,36 +216,51 @@ function getSelectionText(e) {
                     }
                     // !-- Decide if we want to make height and width not a constant, atm getting height and width at this stage doesn't work, what we could do is define
                     // !-- it with js, that we can access it here, problem is media queries work nicely  
-                    popupNode.className = "selectedWord";
                     // Styling
                     popupNode.id = 'defineIt-popupNode';
-                    popupNode.onmouseenter = function(e) {
-                        console.log('hello');
+                    popupNode.addEventListener('mouseenter', function(e) {
                         popupNode.style.opacity = '1.0';
-                    }
-                    popupNode.onmouseleave = function(e) {
+                    });
+                    popupNode.addEventListener('mouseleave', function(e) {
                         popupNode.style.opacity = '';
-
-                    }
+                    });
                     // !-- Old way that gets cropped --!
                     // range.insertNode(popupNode);
                     document.getElementsByTagName('body')[0].insertBefore(popupNode, document.getElementsByTagName('body')[0].firstChild);
+                    var ro = new ResizeObserver( entries => {
+                        for (let entry of entries) {
+                          const cr = entry.contentRect;
+                          console.log('Element:', entry.target);
+                          console.log(`Element size: ${cr.width}px x ${cr.height}px`);
+                          console.log(`Element padding: ${cr.top}px ; ${cr.left}px`);
+                          if (cr.width !== 0 || cr.height !== 0) {
+                            popupDimensionsResize = cr;
+                          }
+                        }
+                        chrome.runtime.sendMessage({text: 'resizePopup', dimensions: { width: popupDimensionsResize.width, height: popupDimensionsResize.height }});
+                        chrome.storage.local.set({popupDimensions: { width: popupDimensionsResize.width, height: popupDimensionsResize.height}}, function() {
+                            console.log('Value is set to ' + JSON.stringify(popupDimensionsResize));
+                        });
+                        return entries;
+                      });
+                      // Observe one or multiple elements
+                    ro.observe(popupNode);
                     let popupNodePositionStart = popupNode.getBoundingClientRect();
                     let popupNodeLeftToRightStart = popupNodePositionStart.x + popupNodePositionStart.width;
                     let popupNodeTopToBottomStart = popupNodePositionStart.y + popupNodePositionStart.height;
                     popupNode.style.left = (boldPosition.left) + 'px';
-                    let overlapHeight = boldPosition.top - documentHeight + 400;
-                    if ( (boldPosition.top - documentHeight + 400) > -18) {
+                    let overlapHeight = boldPosition.top - documentHeight + parseInt(popupNode.style.height);
+                    if ( (boldPosition.top - documentHeight + parseInt(popupNode.style.height)) > -18) {
                         // Trigger from top
-                        popupNode.style.top = boldPosition.top - 415 - 25 + 'px';
+                        popupNode.style.top = boldPosition.top - parseInt(popupNode.style.height) + 15 - 25 + 'px';
                     } else {
                         popupNode.style.top = boldPosition.top - 15 + 'px';
                     }
                     overlapWidth = documentWidth - popupNode.getBoundingClientRect().x;
                     let rangeNode = range.startOffset;
-                    if ( overlapWidth < 326 ) {
+                    if ( overlapWidth < parseInt(popupNode.style.width)+26 ) {
                             if (document.getElementById('defineIt-popupNode')) {
-                                popupNode.style.left = parseInt(popupNode.style.left) - (326 - overlapWidth) + 'px';
+                                popupNode.style.left = parseInt(popupNode.style.left) - (parseInt(popupNode.style.width)+26 - overlapWidth) + 'px';
                             }
                     }
                     const showPopup = (e) => {
@@ -206,7 +276,9 @@ function getSelectionText(e) {
                                     var x = event.clientX;     // Get the horizontal coordinate
                                     var y = event.clientY;     // Get the vertical coordinate
                                     // rangeNew.contents().unwrap();
-                                    document.getElementById('DefineItTextToBold').removeAttribute('id');
+                                    if (document.getElementById('DefineItTextToBold')) {
+                                        document.getElementById('DefineItTextToBold').removeAttribute('id');
+                                    }
                                     // !-- Above fixed what bottom may be able to but better, not sure yet
                                     // !-- document.getElementById('DefineItTextToBold').setAttribute('contenteditable',true);
                                     // !-- document.execCommand("bold", false, null)
@@ -230,11 +302,11 @@ function getSelectionText(e) {
                     //$(bold).contents().unwrap();
                     // End popup ---
                 } else {
-                    window.onmousedown = function(e) {
+                    window.addEventListener('mousedown', function(e) {
                         if (e.which === 1) {
                             $(bold).contents().unwrap();
                         }
-                    } 
+                    });
                 }
             });
         } else if (document.selection && document.selection.type != "Control" && document.selection.createRange().text.length > 0) {
@@ -257,7 +329,8 @@ function getSelectionText(e) {
     }
 }
 
-window.onmouseup = function(e) {
+window.addEventListener('mouseup', function(e) {
     stopFunction = false;
     getSelectionText(e);
-}
+});
+
