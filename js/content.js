@@ -141,7 +141,7 @@ function getSelectionText(e) {
             bold = document.createElement('b'),
             range = highlight.getRangeAt(0);
             bold.id = 'DefineItTextToBold';
-            bold.style.fontWeight = 'unset'
+            bold.style.fontWeight = 'unset';
 /*             if (range.startContainer.nextSibling) {
                 console.log()
                 if (range.startContainer.nextSibling.nodeName.toString() !== "[object Text]") {

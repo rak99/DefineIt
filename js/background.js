@@ -27,18 +27,18 @@ chrome.runtime.onMessage.addListener(
   }); */
 
 var myURL = "about:blank"; // A default url just in case below code doesn't work
-chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) { // onUpdated should fire when the selected tab is changed or a link is clicked 
-    chrome.tabs.getSelected(null, function(tab) {
+
+chrome.tabs.onActivated.addListener(function (activeInfo) {
+    console.log(activeInfo);
+    let activeTabId = activeInfo.tabId;
+    chrome.tabs.get(activeTabId, function (tab) {
         currentURL = tab;
+        console.log(currentURL);
         if (currentURL.url.indexOf('chrome://extensions') === -1) {
             chrome.storage.local.set({currentURL: currentURL});
-            // chrome.tabs.sendMessage(tab.id, {text: 'tabChanged', tabUrl: myURL});
-/*             chrome.tabs.executeScript({
-                file: 'popup.js'
-            });  */
         }
     });
-});
+})
 
 /* if (document.getElementsByClassName('defineIt-container')[0]) {
     console.log(whatTab, document.getElementsByClassName('defineIt-container'));

@@ -5,7 +5,9 @@ chrome.storage.local.get(['currentURL'], function(result) {
     console.log('Value currently is ' + JSON.stringify(result));
     currentURL = result;
     console.log(currentURL.currentURL.url);
-    document.getElementById('blacklist-site').textContent = currentURL.currentURL.url;
+    document.getElementById('blacklist-site').textContent = 'Blacklist: ' + currentURL.currentURL.url;
+    // !-- Do unblacklist aswell for specific site, only if the url is an exact match, or a partial match if it excluded the whole page, should be easy
+    // !-- array.pop(urlindex) or something...
 });
 
 /* if (document.getElementById('defineIt-blacklist-sites-button')) {
