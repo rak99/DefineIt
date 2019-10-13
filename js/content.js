@@ -188,7 +188,8 @@ function getSelectionText(e) {
             .then((res) => {
                 if (res.status !== 404) {
                     console.log(range.commonAncestorContainer.nodeName !== "P");
-                    if (range.commonAncestorContainer.nodeName !== "P") {
+                    console.log(range);
+                    if (range.startContainer.nodeName !== '#text') {
                         console.log(range);
                         range.surroundContents(bold);
                         // !-- Gonna have to change this to do bottom way as well maybe
@@ -203,7 +204,8 @@ function getSelectionText(e) {
                         console.log(nodeOuterHTML.indexOf(selectedText));
                         let selectedTextIndex = nodeOuterHTML.indexOf(selectedText);
                         let selectedTextToBold = `<b id="DefineItTextToBold">${selectedText}</b>`;
-                        range.startContainer.nextSibling.outerHTML = nodeOuterHTML.slice(0, selectedTextIndex) + 
+                        console.log(range.startContainer.nextSibling.outerHTML);
+                        range.startContainer.parentElement.outerHTML = nodeOuterHTML.slice(0, selectedTextIndex) + 
                         selectedTextToBold + 
                         nodeOuterHTML.slice(selectedTextIndex + selectedTextLength, nodeOuterHTML.length);
                         console.log(nodeOuterHTML);
@@ -278,7 +280,9 @@ function getSelectionText(e) {
                                     // rangeNew.contents().unwrap();
                                     if (document.getElementById('DefineItTextToBold')) {
                                         document.getElementById('DefineItTextToBold').removeAttribute('id');
-                                    }
+                                        console.log(rangeNew);
+                                        $(rangeNew.commonAncestorContainer).contents().unwrap();
+                                    };
                                     // !-- Above fixed what bottom may be able to but better, not sure yet
                                     // !-- document.getElementById('DefineItTextToBold').setAttribute('contenteditable',true);
                                     // !-- document.execCommand("bold", false, null)
