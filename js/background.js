@@ -8,6 +8,9 @@ let currentURL = '';
 
 console.log('background active');
 
+var manifest = chrome.runtime.getManifest();
+console.log(manifest.content_scripts[0].exclude_matches);
+
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
         if (request.text === 'resizePopup') {
@@ -28,6 +31,15 @@ chrome.runtime.onMessage.addListener(
 
 var myURL = "about:blank"; // A default url just in case below code doesn't work
 
+chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+    console.log(tabId, changeInfo, tab);
+    currentURL = tab;
+    if (currentURL.url.indexOf('chrome://extensions') === -1) {
+        chrome.storage.local.set({currentURL: currentURL});
+        return;
+    };
+})
+
 chrome.tabs.onActivated.addListener(function (activeInfo) {
     console.log(activeInfo);
     let activeTabId = activeInfo.tabId;
@@ -36,7 +48,8 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
         console.log(currentURL);
         if (currentURL.url.indexOf('chrome://extensions') === -1) {
             chrome.storage.local.set({currentURL: currentURL});
-        }
+            return;
+        };
     });
 })
 

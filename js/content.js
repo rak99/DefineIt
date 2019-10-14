@@ -114,13 +114,14 @@ function getSelectionText(e) {
     // !-- Node.onhover = function() = opacity = 1, but by default make it like 0.3 or something
     // !-- ----------------- 4 THINGS TO FOCUS ON NOW -----------------
     // !-- New error, selecting plain text without whitespace then with, causes error FIX
+    // !-- Fixed for now I think.
     // !-- Save resize size to localstorage or chrome.storage.sync
         // !-- Check https://developers.google.com/web/updates/2016/10/resizeobserver for help on this
         // !-- Works now but previous fix of pushing iframe to the left when it overlapped to the right now fails, look into it, consider dropping the feature.
         // !-- BELOW IS LIKELY THE ISSUE
         // !-- There's a bunch of unmodular code that relies on a linear width and height, fix it as it's bad principles.
+        // !-- fixed
     // !-- Blacklist pages from extensions
-        // !-- Check https://gist.github.com/greatghoul/8120275 for help on this
     // !-- check words for multiple dictionaries
     // !-- MAYBE ADD A sponsored background-image or something
     // in this case, play. Maybe find a way to search for the word 'Play' by searching for indexOf('Play') and the nodeName has to be an <h1> or something,
@@ -142,18 +143,6 @@ function getSelectionText(e) {
             range = highlight.getRangeAt(0);
             bold.id = 'DefineItTextToBold';
             bold.style.fontWeight = 'unset';
-/*             if (range.startContainer.nextSibling) {
-                console.log()
-                if (range.startContainer.nextSibling.nodeName.toString() !== "[object Text]") {
-                    boldPosition = range.startContainer.nextSibling.getBoundingClientRect();
-                } else {
-                    range.surroundContents(bold);
-                    boldPosition = bold.getBoundingClientRect();
-                }
-            } else {
-                range.surroundContents(bold);
-                boldPosition = bold.getBoundingClientRect();
-            } */
             // bold.getBoundingClientRect();
             
             // Begin popup ---
