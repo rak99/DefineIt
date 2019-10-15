@@ -36,6 +36,7 @@ let parsedStringifiedResult = 0;
 
 // Find element's position relative to the document (so if scrolled down this is very useful)
 function getCoords(elem) { // crossbrowser version
+    console.log(elem);
     var box = elem.getBoundingClientRect();
 
     var body = document.body;
@@ -138,9 +139,9 @@ function getSelectionText(e) {
             let selectedDOM = window.getSelection().focusNode;
             // !-- This below method may be inconsistent if there are more versions of the dom element surrounding the selection, this method searches the entire body for the text, and assumes it appears only once.
             // Use below as reference, with the emphasis on range as it allows dom insertion at the specific select.
-            let highlight = window.getSelection(),
-            bold = document.createElement('b'),
-            range = highlight.getRangeAt(0);
+            let highlight = window.getSelection();
+            let bold = document.createElement('b');
+            let rangeWindow = highlight.getRangeAt(0);
             bold.id = 'DefineItTextToBold';
             bold.style.fontWeight = 'unset';
             // bold.getBoundingClientRect();
@@ -176,22 +177,36 @@ function getSelectionText(e) {
              })
             .then((res) => {
                 if (res.status !== 404) {
-                    console.log(range.commonAncestorContainer.nodeName !== "P");
-                    console.log(range);
-                    if (range.startContainer.nodeName !== '#text') {
-                        console.log(range);
-                        range.surroundContents(bold);
+                    console.log(rangeWindow);
+                    if (rangeWindow.startContainer.nodeName !== '#text') {
+                        rangeWindow.endContainer.appendChild(rangeWindow.extractContents());
+                        // range.surroundContents(bold);
                         // !-- Gonna have to change this to do bottom way as well maybe
                         boldPosition = getCoords(bold);
                     } else {
-                        console.log(range);
-                        let selectedText = window.getSelection().toString().trim();
+                        var rangeNew = window.getSelection().getRangeAt(0),
+                            span = document.createElement('span');
+                    
+                        span.id = 'DefineItTextToBold';
+                        span.appendChild(rangeNew.extractContents());
+                        rangeNew.insertNode(span);
+                        console.log(rangeNew, span);
+                        let newBoldElement = document.getElementById('DefineItTextToBold');
+                        console.log(newBoldElement);
+                        boldPosition = getCoords(newBoldElement);
+                        selectElement(newBoldElement);
+                        console.log(boldPosition);
+/*                         let selectedText = window.getSelection().toString().trim();
                         let selectedTextLength = window.getSelection().toString().trim().length;
                         console.log(selectedText);
+
                         let nodeOuterHTML = range.startContainer.parentElement.outerHTML;
-                        console.log(nodeOuterHTML);
-                        console.log(nodeOuterHTML.indexOf(selectedText));
-                        let selectedTextIndex = nodeOuterHTML.indexOf(selectedText);
+                        let nodeTextContent = range.startContainer.parentElement.textContent;
+                        console.log(range);
+                        console.log(getCoords(range.startContainer)); */
+                        // range.startContainer.parentElement.textContent = nodeTextContent + ' defineItBaby';
+/*                         console.log(nodeTextContent.indexOf(selectedText));
+                        let selectedTextIndex = range.startContainer.parentElement.textContent.indexOf(selectedText);
                         let selectedTextToBold = `<b id="DefineItTextToBold">${selectedText}</b>`;
                         console.log(range.startContainer.nextSibling.outerHTML);
                         range.startContainer.parentElement.outerHTML = nodeOuterHTML.slice(0, selectedTextIndex) + 
@@ -199,11 +214,12 @@ function getSelectionText(e) {
                         nodeOuterHTML.slice(selectedTextIndex + selectedTextLength, nodeOuterHTML.length);
                         console.log(nodeOuterHTML);
                         let newBoldElement = document.getElementById('DefineItTextToBold');
+                        console.log(newBoldElement);
                         boldPosition = getCoords(newBoldElement);
                         selectElement(newBoldElement);
                         console.log(boldPosition);
                             highlightNew = window.getSelection(),
-                            rangeNew = highlight.getRangeAt(0);
+                            rangeNew = highlight.getRangeAt(0); */
                     }
                     // !-- Decide if we want to make height and width not a constant, atm getting height and width at this stage doesn't work, what we could do is define
                     // !-- it with js, that we can access it here, problem is media queries work nicely  
@@ -248,7 +264,7 @@ function getSelectionText(e) {
                         popupNode.style.top = boldPosition.top - 15 + 'px';
                     }
                     overlapWidth = documentWidth - popupNode.getBoundingClientRect().x;
-                    let rangeNode = range.startOffset;
+                    let rangeNode = rangeWindow.startOffset;
                     if ( overlapWidth < parseInt(popupNode.style.width)+26 ) {
                             if (document.getElementById('defineIt-popupNode')) {
                                 popupNode.style.left = parseInt(popupNode.style.left) - (parseInt(popupNode.style.width)+26 - overlapWidth) + 'px';
@@ -270,7 +286,7 @@ function getSelectionText(e) {
                                     if (document.getElementById('DefineItTextToBold')) {
                                         document.getElementById('DefineItTextToBold').removeAttribute('id');
                                         console.log(rangeNew);
-                                        $(rangeNew.commonAncestorContainer).contents().unwrap();
+                                        // $(rangeNew.commonAncestorContainer).contents().unwrap();
                                     };
                                     // !-- Above fixed what bottom may be able to but better, not sure yet
                                     // !-- document.getElementById('DefineItTextToBold').setAttribute('contenteditable',true);

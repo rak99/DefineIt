@@ -34,11 +34,8 @@ var myURL = "about:blank"; // A default url just in case below code doesn't work
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     console.log(tabId, changeInfo, tab);
     currentURL = tab;
-    if (currentURL.url.indexOf('chrome://extensions') === -1) {
-        chrome.storage.local.set({currentURL: currentURL});
-        return;
-    };
-})
+    chrome.storage.local.set({currentURL: currentURL});
+});
 
 chrome.tabs.onActivated.addListener(function (activeInfo) {
     console.log(activeInfo);
@@ -46,12 +43,10 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
     chrome.tabs.get(activeTabId, function (tab) {
         currentURL = tab;
         console.log(currentURL);
-        if (currentURL.url.indexOf('chrome://extensions') === -1) {
-            chrome.storage.local.set({currentURL: currentURL});
-            return;
-        };
+        chrome.storage.local.set({currentURL: currentURL});
+        return;
     });
-})
+});
 
 /* if (document.getElementsByClassName('defineIt-container')[0]) {
     console.log(whatTab, document.getElementsByClassName('defineIt-container'));

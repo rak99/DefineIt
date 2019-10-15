@@ -64,6 +64,9 @@ table .sistemas:hover {
 		  user-select: none; /* Non-prefixed version, currently
 								supported by Chrome and Opera */
 }
+.highlight { 
+	background-color: yellow; 
+}
 
 #DefineItTextToBold {
 	font-weight: unset;
