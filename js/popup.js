@@ -11,6 +11,8 @@ chrome.storage.local.get(['blacklistedURLS'], function(res) {
     }
 })
 
+// !-- Consider using .setPopup rather than all this muckery
+
 chrome.storage.local.get(['currentURL'], function(result) {
     console.log('Value currently is ' + JSON.stringify(result));
     if (result.currentURL.url.indexOf('chrome://extensions/') === -1) {
@@ -26,9 +28,11 @@ chrome.storage.local.get(['currentURL'], function(result) {
         // url is the entire url, so this would be used to exclude the singular current page the user is on
         // in turn, this is the hostname of the url, for example www.wikipedia.org/*, so it would exclude all apges on this domain. 
         a.href = url;
-        let hostnameUrl = a.hostname + '/*';
+        let hostnameUrl = a.hostname + '/';
         let excludeArr = blacklists;
         let popupPrefixEl = document.getElementsByClassName('defineIt-blacklist-popup-prefix');
+        let popupPrefixSpecific = document.getElementById('specificBlacklist');
+        let popupPrefixDomain = document.getElementById('domainBlacklist');
         let siteSpecificEl = document.getElementById('blacklist-site-specific');
         let siteEntireEl = document.getElementById('blacklist-site-entire');
         let containerEl = document.getElementsByClassName('defineIt-blacklist-container');
@@ -36,9 +40,14 @@ chrome.storage.local.get(['currentURL'], function(result) {
         function checkIfCurrentURLIsBlacklisted(url) {
             return blacklists.indexOf(url) > -1;
         }
+
+        function refreshPopup() {
+            
+        }
     
-        let isDomainBlacklisted = checkIfCurrentURLIsBlacklisted();
-        let isPageBlacklisted = checkIfCurrentURLIsBlacklisted();
+        let isDomainBlacklisted = checkIfCurrentURLIsBlacklisted(hostnameUrl);
+        let isPageBlacklisted = checkIfCurrentURLIsBlacklisted(url);
+        console.log('Page' + isPageBlacklisted, 'Domain' + isDomainBlacklisted);
 
         function sliceAndConcatArray(arr, indexOfItemToBeRemoved) {
             // Give 2 arrays that you want to remove items from and return the removed array
@@ -58,20 +67,31 @@ chrome.storage.local.get(['currentURL'], function(result) {
             // URL or domain is blacklisted
             // Do Un-Blacklist related things here
             // Change text as well, maybe 'Un-Blacklist This Page'
+
+            // Both Un-blacklisted
+            // 1 blacklisted 1 not blacklisted
+            // Both Blacklisted
+
             if (containerEl.length > 0) {
+                // Both Blacklisted
                 if (isDomainBlacklisted === true && isPageBlacklisted === true) {
-    
-                    for (let i = 0; i < popupPrefixEl.length; i++) {
-                        popupPrefixEl[i].textContent = 'Un-Blacklist';
-                    }
-                    siteSpecificEl.textContent = 'This Specific Page';
+                    console.log('Both domain and page are blacklisted');
+                    //popupPrefixSpecific.textContent = 'Un-Blacklist';
+                    popupPrefixDomain.textContent = 'Un-Blacklist';
+                    //siteSpecificEl.textContent = 'This Specific Page';
                     siteEntireEl.textContent = hostnameUrl;
                     function popupHandler(url) {
-                        console.log(blacklists);
-                        let indexOfItemToBeRemoved = blacklists.indexOf(url);
-                        console.log(indexOfItemToBeRemoved);
-                        let reassembledArray = sliceAndConcatArray(blacklists, indexOfItemToBeRemoved);
-                        console.log(url, reassembledArray);
+                        if (blacklists.indexOf(url) !== -1) {
+                            console.log(blacklists);
+                            let indexOfItemToBeRemoved = blacklists.indexOf(url);
+                            console.log(indexOfItemToBeRemoved);
+                            let reassembledArray = sliceAndConcatArray(blacklists, indexOfItemToBeRemoved);
+                            chrome.storage.local.set({blacklistedURLS: reassembledArray});
+                            console.log(url, reassembledArray);
+                            refreshPopup();
+                        } else {
+                            console.log('tried to unblacklist but' + url + 'was never inside blacklists', blacklists);
+                        }
                     };
 
                     siteSpecificEl.addEventListener('click', function() {
@@ -83,16 +103,25 @@ chrome.storage.local.get(['currentURL'], function(result) {
                     }, false);
 
                 } else if (isDomainBlacklisted === true) {
-                    containerEl[0].remove();
-                    popupPrefixEl[0].textContent = 'Un-Blacklist';
+                    console.log('Only domain is blacklisted');
+                    // Only Domain blacklisted, aka isPageSpecific === false
+                    popupPrefixDomain.textContent = 'Un-Blacklist';
                     // !-- Handle if true and false, need to do the below execution then of push and stuff
                     siteEntireEl.textContent = hostnameUrl;
+                    popupPrefixSpecific.textContent = 'Blacklist';
+                    siteSpecificEl.textContent = 'This Specific Page';
                     function popupHandler(url) {
                         console.log(blacklists);
-                        let indexOfItemToBeRemoved = blacklists.indexOf(url);
-                        console.log(indexOfItemToBeRemoved);
-                        let reassembledArray = sliceAndConcatArray(blacklists, indexOfItemToBeRemoved);
-                        console.log(url, reassembledArray);
+                        if (blacklists.indexOf(url) === -1) {
+                            blacklists.push(url);
+                        } else {
+                            let indexOfItemToBeRemoved = blacklists.indexOf(url);
+                            console.log(indexOfItemToBeRemoved);
+                            let reassembledArray = sliceAndConcatArray(blacklists, indexOfItemToBeRemoved);
+                            chrome.storage.local.set({blacklistedURLS: reassembledArray});
+                            console.log(url, reassembledArray);
+                        }
+                        refreshPopup();
                     };
 
                     siteSpecificEl.addEventListener('click', function() {
@@ -103,17 +132,25 @@ chrome.storage.local.get(['currentURL'], function(result) {
                         popupHandler(hostnameUrl);
                     }, false);
                 } else {
+                    console.log('Only page is blacklisted');
                     // isPageBlackListed === true
-                    containerEl[1].remove();
-                    popupPrefixEl[1].textContent = 'Un-Blacklist';
-                    siteSpecificEl.textContent = url;
-
+                    popupPrefixSpecific.textContent = 'Un-Blacklist';
+                    popupPrefixDomain.textContent = 'Blacklist';
+                    // !-- Handle if true and false, need to do the below execution then of push and stuff
+                    siteEntireEl.textContent = hostnameUrl;
+                    siteSpecificEl.textContent = 'This Specific Page';
                     function popupHandler(url) {
                         console.log(blacklists);
-                        let indexOfItemToBeRemoved = blacklists.indexOf(url);
-                        console.log(indexOfItemToBeRemoved);
-                        let reassembledArray = sliceAndConcatArray(blacklists, indexOfItemToBeRemoved);
-                        console.log(url, reassembledArray);
+                        if (blacklists.indexOf(url) === -1) {
+                            blacklists.push(url);
+                        } else {
+                            let indexOfItemToBeRemoved = blacklists.indexOf(url);
+                            console.log(indexOfItemToBeRemoved);
+                            let reassembledArray = sliceAndConcatArray(blacklists, indexOfItemToBeRemoved);
+                            chrome.storage.local.set({blacklistedURLS: reassembledArray});
+                            console.log(url, reassembledArray);
+                        }
+                        refreshPopup();
                     };
 
                     siteSpecificEl.addEventListener('click', function() {
@@ -127,20 +164,25 @@ chrome.storage.local.get(['currentURL'], function(result) {
             }
     
         } else {
+            console.log('No blacklists');
             if (siteSpecificEl) {
                 console.log(hostnameUrl, url);
                 // URL or domain not blacklisted
                 // Do blacklist related things here
-                for (let i = 0; i < popupPrefixEl.length; i++) {
-                    popupPrefixEl[i].textContent = 'Blacklist';
-                }
+                popupPrefixSpecific.textContent = 'Blacklist';
+                popupPrefixDomain.textContent = 'Blacklist';
                 siteSpecificEl.textContent = 'This Specific Page';
                 siteEntireEl.textContent = hostnameUrl;
 
                 function popupHandler(url) {
-                    blacklists.push(url);
-                    chrome.storage.local.set({blacklistedURLS: blacklists});
-                    console.log(blacklists);
+                    if (blacklists.indexOf(url) === -1) {
+                        blacklists.push(url);
+                        chrome.storage.local.set({blacklistedURLS: blacklists});
+                        console.log(blacklists);
+                        refreshPopup();
+                    } else {
+                        console.log('tried to blacklist but' + url + 'was already inside blacklists', blacklists);
+                    }
                 };
 
                 siteSpecificEl.addEventListener('click', function() {
