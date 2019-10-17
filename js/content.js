@@ -32,7 +32,8 @@ chrome.storage.local.get(['blacklistedURLS'], function(res) {
         // care which on this page, just that it shouldn't work
         let joinedBlacklists = res.blacklistedURLS.join(' ');
         console.log(joinedBlacklists);
-        if (joinedBlacklists.indexOf(window.location.href) === -1) {
+        console.log(window.location.href.indexOf(joinedBlacklists));
+        if (window.location.href.indexOf(joinedBlacklists) === -1 || window.location.href.indexOf(joinedBlacklists) === 0) {
             let popupNode = '';
             let boldPosition = '';
             let overlapWidth = 0;
@@ -270,9 +271,9 @@ chrome.storage.local.get(['blacklistedURLS'], function(res) {
                                 let overlapHeight = boldPosition.top - documentHeight + parseInt(popupNode.style.height);
                                 if ( (boldPosition.top - documentHeight + parseInt(popupNode.style.height)) > -18) {
                                     // Trigger from top
-                                    popupNode.style.top = boldPosition.top - parseInt(popupNode.style.height) + 15 - 25 + 'px';
+                                    popupNode.style.top = boldPosition.top - parseInt(popupNode.style.height) + 15 - 50 - span.offsetHeight + 'px';
                                 } else {
-                                    popupNode.style.top = boldPosition.top - 15 + 'px';
+                                    popupNode.style.top = boldPosition.top + 'px';
                                 }
                                 overlapWidth = documentWidth - popupNode.getBoundingClientRect().x;
                                 let rangeNode = rangeWindow.startOffset;
