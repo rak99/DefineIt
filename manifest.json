@@ -9,8 +9,7 @@
                "<all_urls>"
             ],
             "js": ["./js/jquery.js", "./js/content.js", "./js/popup.js"],
-            "css": ["./css/styles.css", "./css/popup.css"],
-            "exclude_matches": []
+            "css": ["./css/styles.css", "./css/popup.css"]
         }
     ],
     "background": {
@@ -27,8 +26,8 @@
         "file://*/*",
         "tabs",
         "activeTab",
-        "<all_urls>",
+        "https://od-api.oxforddictionaries.com/",
+        "http://od-api.oxforddictionaries.com/",
         "storage"
-    ],
-    "content_security_policy": "default-src 'self'; connect-src *"
+    ]
 }

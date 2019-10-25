@@ -65,3 +65,51 @@
 .defineIt-blacklist-container {
     margin-top: 5%;
 }
+.icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    stroke-width: 0;
+    stroke: currentColor;
+    fill: currentColor;
+}
+.refreshIconContainer-class {
+    display: none;
+    width: 300px;
+    height: 120px;
+}
+.refreshButton {
+    border: 0;
+    background-color: inherit;
+    justify-content: center;
+    display: flex;
+    margin: 0 auto;
+    width: 72px;
+    height: 80px;
+    align-content: center;
+    align-self: center;
+}
+.refreshButton:hover {
+    cursor: pointer;
+    overflow: hidden;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    vertical-align: middle;
+    z-index: 1;
+    -webkit-transition: .3s ease-out;
+    transition: .3s ease-out;
+    text-decoration: none;
+    color: #fff;
+    background-color: rgb(120, 65, 129);
+    letter-spacing: .5px;
+    -webkit-transition: background-color .2s ease-out;
+    transition: background-color .2s ease-out;
+    box-shadow: 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12);
+}
+.refreshIcon {
+    width: 64px !important;
+    height: 64px !important;
+}

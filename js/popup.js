@@ -9,7 +9,9 @@ chrome.storage.local.get(['blacklistedURLS'], function(res) {
     } else {
         blacklists = [];
     }
-})
+});
+
+// Stop f12 and right click from working on popup
 
 // !-- Consider using .setPopup rather than all this muckery
 
@@ -18,6 +20,18 @@ chrome.storage.local.get(['currentURL'], function(result) {
     if (result.currentURL.url.indexOf('chrome://extensions/') === -1) {
         currentURL = result;
         console.log(currentURL.currentURL.url);
+
+        if (document.getElementById('defineItBody')) {
+            document.getElementById('defineItBody').addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                return false;
+            });
+            document.getElementById('defineItBody').addEventListener('keydown', function(e) {
+                if(e.which === 123){
+                    return false;
+                 };
+            });
+        };
         // Use clever tactic to extract hostname from url by turning it into a a element, setting the href attribute to the url we want
         // the a element hasa built in hostname property that extracts it from the href, so all that's left is to use a.hostname and voila!
     
@@ -42,7 +56,13 @@ chrome.storage.local.get(['currentURL'], function(result) {
         }
 
         function refreshPopup() {
-            
+            document.getElementById('defineIt-container-id').style.display = 'none';
+            document.getElementById('refreshIconContainer').style.display = 'flex';
+            document.getElementById('refreshButtonID').addEventListener('click', function() {
+                console.log('clicked');
+                chrome.runtime.sendMessage({text: 'refreshContent'});
+                window.close();
+            });
         }
     
         let isDomainBlacklisted = checkIfCurrentURLIsBlacklisted(hostnameUrl);
