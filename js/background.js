@@ -71,24 +71,29 @@ chrome.storage.local.get(['API_CREDENTIALS'], function(result) {
                         'app_key': atob(result.API_CREDENTIALS.key)
                     }
                 })
-                .then(response => response.text())
+                .then((response) => {
+                    if (response.status !== 404)
+                        return response.text()
+                })
                 .then((text) => {
-                    let parsedText = JSON.parse(text);
-                    let word = parsedText.results[0].lexicalEntries[0].inflectionOf[0].text;
-                    let language = 'en-gb';
-                    fetch('https://od-api.oxforddictionaries.com/api/v2' + '/entries/' + language + '/' + word + '?fields=definitions&strictMatch=false', {
-                        headers: {
-                            'app_id': atob(result.API_CREDENTIALS.id),
-                            'app_key': atob(result.API_CREDENTIALS.key)
-                        }
-                    })
-                    .then(response => response.text())
-                    .then((text) => {
-                        //console.log(text);
-                        console.log('HELLO');
-                        chrome.tabs.sendMessage(activeTabId, {text: 'API_RESPONSE', data: text});
-                    })
-                    //chrome.runtime.sendMessage({text: 'API_RESPONSE', data: text})
+                    if (text) {
+                        let parsedText = JSON.parse(text);
+                        let word = parsedText.results[0].lexicalEntries[0].inflectionOf[0].text;
+                        let language = 'en-gb';
+                        fetch('https://od-api.oxforddictionaries.com/api/v2' + '/entries/' + language + '/' + word + '?fields=definitions&strictMatch=false', {
+                            headers: {
+                                'app_id': atob(result.API_CREDENTIALS.id),
+                                'app_key': atob(result.API_CREDENTIALS.key)
+                            }
+                        })
+                        .then(response => response.text())
+                        .then((text) => {
+                            //console.log(text);
+                            console.log('HELLO');
+                            chrome.tabs.sendMessage(activeTabId, {text: 'API_RESPONSE', data: text});
+                        })
+                        //chrome.runtime.sendMessage({text: 'API_RESPONSE', data: text})
+                    }
                 })
                 .catch(error => console.log(error));
                 return true;  // Will respond asynchronously.

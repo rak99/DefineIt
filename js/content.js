@@ -24,24 +24,232 @@
 
 // Listen for refresh from popup.js
 
+let popupNode = '';
+let boldPosition = '';
+let overlapWidth = 0;
+let contextMenuExists = false;
+let rangeNew = '';
+let highlightNew = '';
+let popupDimensionsGetFromSync = '';
+let popupDimensionsResize = 0;
+let syncedPopupWidth = 0;
+let syncedPopupHeight = 0;
+let parsedStringifiedResult = 0;
+let span = '';
+// Add multi-language later
+let language = 'en-gb';
+let fullAPIURL = '';
+let newBoldElement = '';
+let rangeWindow = '';
+let bold = '';
+
+
+function popupIcon() {
+    var body = document.body,
+    html = document.documentElement;
+
+    var documentHeight = Math.max( body.scrollHeight, body.offsetHeight, 
+        html.clientHeight, html.scrollHeight, html.offsetHeight 
+        );
+    var documentWidth = Math.max( body.scrollWidth, body.offsetWidth,
+        html.clientWidth, html.scrollWidth, html.offsetWidth
+         );
+    console.log(boldPosition);
+    let iconPopup = popupNode;
+    iconPopup.id = 'defineIt-popupNode';
+    iconPopup.className = 'popupIcon';
+    iconPopup.addEventListener('mouseenter', function(e) {
+        iconPopup.style.opacity = '1.0';
+    });
+    iconPopup.addEventListener('mouseleave', function(e) {
+        iconPopup.style.opacity = '';
+    });
+    // !-- Old way that gets cropped --!
+    // range.insertNode(iconPopup);
+    console.log(iconPopup);
+    document.getElementsByTagName('body')[0].insertBefore(iconPopup, document.getElementsByTagName('body')[0].firstChild);
+    var ro = new ResizeObserver( entries => {
+        for (let entry of entries) {
+            const cr = entry.contentRect;
+            console.log('Element:', entry.target);
+            console.log(`Element size: ${cr.width}px x ${cr.height}px`);
+            console.log(`Element padding: ${cr.top}px ; ${cr.left}px`);
+            if (cr.width !== 0 || cr.height !== 0) {
+            popupDimensionsResize = cr;
+            }
+        }
+        chrome.runtime.sendMessage({text: 'resizePopup', dimensions: { width: popupDimensionsResize.width, height: popupDimensionsResize.height }});
+        chrome.storage.local.set({popupDimensions: { width: popupDimensionsResize.width, height: popupDimensionsResize.height}}, function() {
+            console.log('Value is set to ' + JSON.stringify(popupDimensionsResize));
+        });
+        return entries;
+    });
+    const showPopup = (e) => {
+        if (e.which === 1) {
+            // !-- Remove if else later if I decide a single click outside popup should close with contextMenu open
+            if (contextMenuExists === true) {
+                contextMenuExists = false;
+            } else {
+                if ( document.getElementById('defineIt-popupNode') ) {
+                    let iconPopupPositions = iconPopup.getBoundingClientRect();
+                    let iconPopupLeftToRight = iconPopupPositions.x + iconPopupPositions.width;
+                    let iconPopupTopToBottom = iconPopupPositions.y + iconPopupPositions.height;
+                    var x = event.clientX;     // Get the horizontal coordinate
+                    var y = event.clientY;     // Get the vertical coordinate
+                    // rangeNew.contents().unwrap();
+                    if (document.getElementById('DefineItTextToBold')) {
+                        document.getElementById('DefineItTextToBold').removeAttribute('id');
+                        console.log(rangeNew);
+                        // $(rangeNew.commonAncestorContainer).contents().unwrap();
+                    };
+                    // !-- Above fixed what bottom may be able to but better, not sure yet
+                    // !-- document.getElementById('DefineItTextToBold').setAttribute('contenteditable',true);
+                    // !-- document.execCommand("bold", false, null)
+                    $(bold).contents().unwrap();
+                    var coor = "X coords: " + x + ", Y coords: " + y;
+                    if ( ( x < (iconPopupPositions.x) || x > iconPopupLeftToRight ) || y < (iconPopupPositions.y) || y > iconPopupTopToBottom ) {
+                        console.log('SHOULD BE OUTSIDE');
+                        // range.startContainer.childNodes[rangeNode].remove();
+                        $(span).contents().unwrap();
+                        document.getElementById('defineIt-popupNode').remove();
+                        window.removeEventListener('mousedown', showPopup, false);
+                        let iconPopupPosition = iconPopup.getBoundingClientRect();
+                        iconPopup.style.left = (boldPosition.left - iconPopupPosition.left + 'px') + iconPopup.style.width;
+                    }
+                }
+            }
+        } else {
+            contextMenuExists = false;
+        }
+    };
+    // Observe one or multiple elements
+    ro.observe(iconPopup);
+    let iconPopupPositionStart = iconPopup.getBoundingClientRect();
+    let iconPopupLeftToRightStart = iconPopupPositionStart.x + iconPopupPositionStart.width;
+    let iconPopupTopToBottomStart = iconPopupPositionStart.y + iconPopupPositionStart.height;
+    iconPopup.style.left = (boldPosition.left) + span.offsetWidth + 'px';
+    // let overlapHeight = boldPosition.top - documentHeight + parseInt(iconPopup.style.height);
+    if ( (boldPosition.top - documentHeight + parseInt(iconPopup.style.height)) > -18) {
+        // Trigger from top
+        iconPopup.style.top = boldPosition.top - parseInt(iconPopup.style.height) + 15 - 50 - span.offsetHeight + 'px';
+    } else {
+        console.log(iconPopup);
+        iconPopup.style.top = boldPosition.top + 'px';
+    }
+    overlapWidth = documentWidth - iconPopup.getBoundingClientRect().x;
+    let rangeNode = rangeWindow.startOffset;
+    if ( overlapWidth < parseInt(iconPopup.style.width)+26 ) {
+        if (document.getElementById('defineIt-popupNode')) {
+            iconPopup.style.left = parseInt(iconPopup.style.left) - (parseInt(iconPopup.style.width)+26 - overlapWidth) + 'px';
+        }
+    }
+    window.addEventListener('mousedown', showPopup, false);
+    iconPopup.addEventListener('click', () => doPositioning());
+}
+
+function doPositioning() {
+    var body = document.body,
+    html = document.documentElement;
+
+    var documentHeight = Math.max( body.scrollHeight, body.offsetHeight, 
+        html.clientHeight, html.scrollHeight, html.offsetHeight 
+        );
+    var documentWidth = Math.max( body.scrollWidth, body.offsetWidth,
+        html.clientWidth, html.scrollWidth, html.offsetWidth
+         );
+    console.log(boldPosition);
+    popupNode.id = 'defineIt-popupNode';
+    popupNode.className = 'selectedWord';
+    popupNode.addEventListener('mouseenter', function(e) {
+        popupNode.style.opacity = '1.0';
+    });
+    popupNode.addEventListener('mouseleave', function(e) {
+        popupNode.style.opacity = '';
+    });
+    // !-- Old way that gets cropped --!
+    // range.insertNode(popupNode);
+    console.log(popupNode);
+    document.getElementsByTagName('body')[0].insertBefore(popupNode, document.getElementsByTagName('body')[0].firstChild);
+    var ro = new ResizeObserver( entries => {
+        for (let entry of entries) {
+            const cr = entry.contentRect;
+            console.log('Element:', entry.target);
+            console.log(`Element size: ${cr.width}px x ${cr.height}px`);
+            console.log(`Element padding: ${cr.top}px ; ${cr.left}px`);
+            if (cr.width !== 0 || cr.height !== 0) {
+            popupDimensionsResize = cr;
+            }
+        }
+        chrome.runtime.sendMessage({text: 'resizePopup', dimensions: { width: popupDimensionsResize.width, height: popupDimensionsResize.height }});
+        chrome.storage.local.set({popupDimensions: { width: popupDimensionsResize.width, height: popupDimensionsResize.height}}, function() {
+            console.log('Value is set to ' + JSON.stringify(popupDimensionsResize));
+        });
+        return entries;
+    });
+    const showPopup = (e) => {
+        if (e.which === 1) {
+            // !-- Remove if else later if I decide a single click outside popup should close with contextMenu open
+            if (contextMenuExists === true) {
+                contextMenuExists = false;
+            } else {
+                if ( document.getElementById('defineIt-popupNode') ) {
+                    let popupNodePositions = popupNode.getBoundingClientRect();
+                    let popupNodeLeftToRight = popupNodePositions.x + popupNodePositions.width;
+                    let popupNodeTopToBottom = popupNodePositions.y + popupNodePositions.height;
+                    var x = event.clientX;     // Get the horizontal coordinate
+                    var y = event.clientY;     // Get the vertical coordinate
+                    // rangeNew.contents().unwrap();
+                    if (document.getElementById('DefineItTextToBold')) {
+                        document.getElementById('DefineItTextToBold').removeAttribute('id');
+                        console.log(rangeNew);
+                        // $(rangeNew.commonAncestorContainer).contents().unwrap();
+                    };
+                    // !-- Above fixed what bottom may be able to but better, not sure yet
+                    // !-- document.getElementById('DefineItTextToBold').setAttribute('contenteditable',true);
+                    // !-- document.execCommand("bold", false, null)
+                    $(bold).contents().unwrap();
+                    var coor = "X coords: " + x + ", Y coords: " + y;
+                    if ( ( x < (popupNodePositions.x) || x > popupNodeLeftToRight ) || y < (popupNodePositions.y) || y > popupNodeTopToBottom ) {
+                        console.log('SHOULD BE OUTSIDE');
+                        // range.startContainer.childNodes[rangeNode].remove();
+                        $(span).contents().unwrap();
+                        document.getElementById('defineIt-popupNode').remove();
+                        window.removeEventListener('mousedown', showPopup, false);
+                        let popupNodePosition = popupNode.getBoundingClientRect();
+                        popupNode.style.left = (boldPosition.left - popupNodePosition.left + 'px') + popupNode.style.width;
+                    }
+                }
+            }
+        } else {
+            contextMenuExists = false;
+        }
+    };
+    // Observe one or multiple elements
+    ro.observe(popupNode);
+    let popupNodePositionStart = popupNode.getBoundingClientRect();
+    let popupNodeLeftToRightStart = popupNodePositionStart.x + popupNodePositionStart.width;
+    let popupNodeTopToBottomStart = popupNodePositionStart.y + popupNodePositionStart.height;
+    popupNode.style.left = (boldPosition.left) + span.offsetWidth + 'px';
+    // let overlapHeight = boldPosition.top - documentHeight + parseInt(popupNode.style.height);
+    if ( (boldPosition.top - documentHeight + parseInt(popupNode.style.height)) > -18) {
+        // Trigger from top
+        popupNode.style.top = boldPosition.top - parseInt(popupNode.style.height) + 15 - 50 - span.offsetHeight + 'px';
+    } else {
+        console.log(popupNode);
+        popupNode.style.top = boldPosition.top + 'px';
+    }
+    overlapWidth = documentWidth - popupNode.getBoundingClientRect().x;
+    let rangeNode = rangeWindow.startOffset;
+    if ( overlapWidth < parseInt(popupNode.style.width)+26 ) {
+        if (document.getElementById('defineIt-popupNode')) {
+            popupNode.style.left = parseInt(popupNode.style.left) - (parseInt(popupNode.style.width)+26 - overlapWidth) + 'px';
+        }
+    }
+    window.addEventListener('mousedown', showPopup, false);
+}
+
 
 function executeExtension() {
-    let popupNode = '';
-    let boldPosition = '';
-    let overlapWidth = 0;
-    let contextMenuExists = false;
-    let rangeNew = '';
-    let highlightNew = '';
-    let popupDimensionsGetFromSync = '';
-    let popupDimensionsResize = 0;
-    let syncedPopupWidth = 0;
-    let syncedPopupHeight = 0;
-    let parsedStringifiedResult = 0;
-    let span = '';
-    // Add multi-language later
-    let language = 'en-gb';
-    let fullAPIURL = '';
-
     // Find element's position relative to the document (so if scrolled down this is very useful)
     function getCoords(elem) { // crossbrowser version
         console.log(elem);
@@ -136,18 +344,15 @@ function executeExtension() {
                 // !-- This below method may be inconsistent if there are more versions of the dom element surrounding the selection, this method searches the entire body for the text, and assumes it appears only once.
                 // Use below as reference, with the emphasis on range as it allows dom insertion at the specific select.
                 let highlight = window.getSelection();
-                let bold = document.createElement('b');
-                let rangeWindow = highlight.getRangeAt(0);
+                bold = document.createElement('b');
+                rangeWindow = highlight.getRangeAt(0);
                 bold.id = 'DefineItTextToBold';
                 bold.style.fontWeight = 'unset';
                 // bold.getBoundingClientRect();
                 
                 // Begin popup ---
 
-                let popupNodeAPI = document.createElement('div');
-                popupNodeAPI.style
-
-                let popupNode = document.createElement('iframe');
+                popupNode = document.createElement('div');
                 popupNode.className = "selectedWord";
     
                 chrome.storage.local.get(['popupDimensions'], function(result) {
@@ -168,152 +373,35 @@ function executeExtension() {
     
                 // !-- New idea, maybe try a bunch of dictionary websites, either at the same time, first one with a 200 response or something is used, or by order of if 404;
                 // !-- Like promises
-                        console.log(rangeWindow);
+                console.log(rangeWindow);
     /*                         rangeWindow.endContainer.appendChild(rangeWindow.extractContents());
-                            // range.surroundContents(bold);
-                            // !-- Gonna have to change this to do bottom way as well maybe
-                            boldPosition = getCoords(bold); */
-                            var rangeNew = window.getSelection().getRangeAt(0);
-                                span = document.createElement('span');
-                        
-                            span.id = 'DefineItTextToBold';
-                            span.appendChild(rangeNew.extractContents());
-                            rangeNew.insertNode(span);
-                            console.log(rangeNew, span);
-                            let newBoldElement = document.getElementById('DefineItTextToBold');
-                            console.log(newBoldElement);
-                            boldPosition = getCoords(newBoldElement);
-                            selectElement(newBoldElement);
-                            console.log(boldPosition);
-                            fullAPIURL = 'https://od-api.oxforddictionaries.com/api/v2' + '/lemmas/' + language + '/' + text;
-                            chrome.runtime.sendMessage({text: 'API_CALL', url: fullAPIURL, word: text});
-    /*                         let selectedText = window.getSelection().toString().trim();
-                            let selectedTextLength = window.getSelection().toString().trim().length;
-                            console.log(selectedText);
-    
-                            let nodeOuterHTML = range.startContainer.parentElement.outerHTML;
-                            let nodeTextContent = range.startContainer.parentElement.textContent;
-                            console.log(range);
-                            console.log(getCoords(range.startContainer)); */
-                            // range.startContainer.parentElement.textContent = nodeTextContent + ' defineItBaby';
-    /*                         console.log(nodeTextContent.indexOf(selectedText));
-                            let selectedTextIndex = range.startContainer.parentElement.textContent.indexOf(selectedText);
-                            let selectedTextToBold = `<b id="DefineItTextToBold">${selectedText}</b>`;
-                            console.log(range.startContainer.nextSibling.outerHTML);
-                            range.startContainer.parentElement.outerHTML = nodeOuterHTML.slice(0, selectedTextIndex) + 
-                            selectedTextToBold + 
-                            nodeOuterHTML.slice(selectedTextIndex + selectedTextLength, nodeOuterHTML.length);
-                            console.log(nodeOuterHTML);
-                            let newBoldElement = document.getElementById('DefineItTextToBold');
-                            console.log(newBoldElement);
-                            boldPosition = getCoords(newBoldElement);
-                            selectElement(newBoldElement);
-                            console.log(boldPosition);
-                                highlightNew = window.getSelection(),
-                                rangeNew = highlight.getRangeAt(0); */
-                        // !-- Decide if we want to make height and width not a constant, atm getting height and width at this stage doesn't work, what we could do is define
-                        // !-- it with js, that we can access it here, problem is media queries work nicely  
-                        // Styling
-                        popupNode.id = 'defineIt-popupNode';
-                        popupNode.addEventListener('mouseenter', function(e) {
-                            popupNode.style.opacity = '1.0';
-                        });
-                        popupNode.addEventListener('mouseleave', function(e) {
-                            popupNode.style.opacity = '';
-                        });
-                        // !-- Old way that gets cropped --!
-                        // range.insertNode(popupNode);
-                        document.getElementsByTagName('body')[0].insertBefore(popupNode, document.getElementsByTagName('body')[0].firstChild);
-                        var ro = new ResizeObserver( entries => {
-                            for (let entry of entries) {
-                              const cr = entry.contentRect;
-                              console.log('Element:', entry.target);
-                              console.log(`Element size: ${cr.width}px x ${cr.height}px`);
-                              console.log(`Element padding: ${cr.top}px ; ${cr.left}px`);
-                              if (cr.width !== 0 || cr.height !== 0) {
-                                popupDimensionsResize = cr;
-                              }
-                            }
-                            chrome.runtime.sendMessage({text: 'resizePopup', dimensions: { width: popupDimensionsResize.width, height: popupDimensionsResize.height }});
-                            chrome.storage.local.set({popupDimensions: { width: popupDimensionsResize.width, height: popupDimensionsResize.height}}, function() {
-                                console.log('Value is set to ' + JSON.stringify(popupDimensionsResize));
-                            });
-                            return entries;
-                          });
-                          // Observe one or multiple elements
-                        ro.observe(popupNode);
-                        let popupNodePositionStart = popupNode.getBoundingClientRect();
-                        let popupNodeLeftToRightStart = popupNodePositionStart.x + popupNodePositionStart.width;
-                        let popupNodeTopToBottomStart = popupNodePositionStart.y + popupNodePositionStart.height;
-                        popupNode.style.left = (boldPosition.left) + 'px';
-                        let overlapHeight = boldPosition.top - documentHeight + parseInt(popupNode.style.height);
-                        if ( (boldPosition.top - documentHeight + parseInt(popupNode.style.height)) > -18) {
-                            // Trigger from top
-                            popupNode.style.top = boldPosition.top - parseInt(popupNode.style.height) + 15 - 50 - span.offsetHeight + 'px';
-                        } else {
-                            popupNode.style.top = boldPosition.top + 'px';
-                        }
-                        overlapWidth = documentWidth - popupNode.getBoundingClientRect().x;
-                        let rangeNode = rangeWindow.startOffset;
-                        if ( overlapWidth < parseInt(popupNode.style.width)+26 ) {
-                                if (document.getElementById('defineIt-popupNode')) {
-                                    popupNode.style.left = parseInt(popupNode.style.left) - (parseInt(popupNode.style.width)+26 - overlapWidth) + 'px';
-                                }
-                        }
-                        const showPopup = (e) => {
-                            if (e.which === 1) {
-                                // !-- Remove if else later if I decide a single click outside popup should close with contextMenu open
-                                if (contextMenuExists === true) {
-                                    contextMenuExists = false;
-                                } else {
-                                    if ( document.getElementById('defineIt-popupNode') ) {
-                                        let popupNodePositions = popupNode.getBoundingClientRect();
-                                        let popupNodeLeftToRight = popupNodePositions.x + popupNodePositions.width;
-                                        let popupNodeTopToBottom = popupNodePositions.y + popupNodePositions.height;
-                                        var x = event.clientX;     // Get the horizontal coordinate
-                                        var y = event.clientY;     // Get the vertical coordinate
-                                        // rangeNew.contents().unwrap();
-                                        if (document.getElementById('DefineItTextToBold')) {
-                                            document.getElementById('DefineItTextToBold').removeAttribute('id');
-                                            console.log(rangeNew);
-                                            // $(rangeNew.commonAncestorContainer).contents().unwrap();
-                                        };
-                                        // !-- Above fixed what bottom may be able to but better, not sure yet
-                                        // !-- document.getElementById('DefineItTextToBold').setAttribute('contenteditable',true);
-                                        // !-- document.execCommand("bold", false, null)
-                                        $(bold).contents().unwrap();
-                                        var coor = "X coords: " + x + ", Y coords: " + y;
-                                        if ( ( x < (popupNodePositions.x) || x > popupNodeLeftToRight ) || y < (popupNodePositions.y) || y > popupNodeTopToBottom ) {
-                                            console.log('SHOULD BE OUTSIDE');
-                                            // range.startContainer.childNodes[rangeNode].remove();
-                                            $(span).contents().unwrap();
-                                            document.getElementById('defineIt-popupNode').remove();
-                                            window.removeEventListener('mousedown', showPopup, false);
-                                            let popupNodePosition = popupNode.getBoundingClientRect();
-                                            popupNode.style.left = (boldPosition.left - popupNodePosition.left + 'px') + popupNode.style.width;
-                                        }
-                                    }
-                                }
-                            } else {
-                                contextMenuExists = false;
-                            }
-                        };
-                        window.addEventListener('mousedown', showPopup, false);
-                        //$(bold).contents().unwrap();
-                        // End popup ---
-/*                      else {
-                        window.addEventListener('mousedown', function(e) {
-                            if (e.which === 1) {
-                                $(bold).contents().unwrap();
-                            }
-                        });
-                    } */
-
+                // range.surroundContents(bold);
+                // !-- Gonna have to change this to do bottom way as well maybe
+                boldPosition = getCoords(bold); */
+                var rangeNew = window.getSelection().getRangeAt(0);
+                    span = document.createElement('span');
+            
+                span.id = 'DefineItTextToBold';
+                span.appendChild(rangeNew.extractContents());
+                rangeNew.insertNode(span);
+                console.log(rangeNew, span);
+                newBoldElement = document.getElementById('DefineItTextToBold');
+                console.log(newBoldElement);
+                boldPosition = getCoords(newBoldElement);
+                selectElement(newBoldElement);
+                console.log(boldPosition);
+                fullAPIURL = 'https://od-api.oxforddictionaries.com/api/v2' + '/lemmas/' + language + '/' + text;
+                if (text.indexOf(' ') === -1 && text.length <= 45) {
+                    chrome.runtime.sendMessage({text: 'API_CALL', url: fullAPIURL, word: text});
+                }
+                // !-- Decide if we want to make height and width not a constant, atm getting height and width at this stage doesn't work, what we could do is define
+                // !-- it with js, that we can access it here, problem is media queries work nicely  
+                // Styling
             } else if (document.selection && document.selection.type != "Control" && document.selection.createRange().text.length > 0) {
                 text = document.selection.createRange().text;
                 let selectedDOM = document.selection.createRange().focusNode;
                 // Begin popup ---
-                let popupNode = document.createElement("div");
+                popupNode = document.createElement("div");
                 popupNode.className = "selectedWord";
                 let selectedWordTextNode = document.createTextNode(`${text}`);
                 popupNode.appendChild(selectedWordTextNode);
@@ -334,9 +422,11 @@ function executeExtension() {
     });
     chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         if (request.text === "API_RESPONSE") {
+            popupIcon();
+
+            console.log(boldPosition);
             console.log(request);
             let API_resp_data = JSON.parse(request.data).results;
-            console.log('HEHHEHEHEHEHEH');
             console.log(API_resp_data);
             let id = API_resp_data.id;
             let word = API_resp_data.word;
@@ -351,34 +441,6 @@ function executeExtension() {
                     }
                 }
             }
-/*                             for (let elts of elt.lexicalEntries) {
-                let entries = elts.entries;
-                    for (let eltsz of entries) {
-                        let etymologies = eltsz;
-                        console.log(etymologies);
-                        if (etymologies.length > 1) {
-                            for (let eltszz of etymologies) {
-                                let crossReferenceMarkers = eltszz.crossReferenceMarkers;
-                                for (let eltszzz of crossReferenceMarkers) {
-                                    // Defintion
-                                    console.log(eltszzz);
-                                }
-                            }
-                        } else {
-
-                        }
-                    }
-                // lexical category means Verb, Noun etc.
-                let lexicalCategory = elts.lexicalCategory;
-                    let lexicalCategoryID = lexicalCategory.id;
-                    let lexicalCategoryText = lexicalCategory.text;
-                let pronunciations = elts.pronunciations;
-                    for (let eltz of pronunciations) {
-                        console.log(elts)
-                        // audioFilesArr.push(elts.audioFile);
-                    }
-                let text = elts.text;
-            } */
         }
     });          
 }

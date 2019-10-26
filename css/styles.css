@@ -2,17 +2,20 @@
 	resize: both;
 	overflow: auto;
     position: absolute;
-      background: rgb(1, 2, 2);
     z-index: 9999999;
     width: fit-content;
 	color: white;
 	opacity: 0.1;
     padding: 1px;
-    margin-top: 30px;
+    margin-top: 18px;
     font-family: Calibri;
 	font-size: 15px;
-/* 	height: 500px;
-	width: 350px; */
+	height: 400px;
+	width: 300px;
+	max-height: 1000px !important;
+	max-width: 800px !important;
+	min-height: 225px !important;
+	min-width: 150px !important;
 	-moz-user-select: none;
 	-webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
@@ -21,6 +24,32 @@
         -ms-user-select: none; /* Internet Explorer/Edge */
             user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome and Opera */
+}
+.popupIcon {
+	overflow: auto;
+    position: absolute;
+    z-index: 9999999;
+    width: fit-content;
+	color: white;
+	opacity: 0.1;
+    padding: 1px;
+    margin-top: 18px;
+    font-family: Calibri;
+	font-size: 15px;
+	height: 32px;
+	width: 32px;
+	background: url(https://i.imgur.com/Hgh0u2z.png) no-repeat round;
+	-moz-user-select: none;
+	-webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+.popupIcon:hover {
+	cursor: pointer;
 }
 table .sistemas:hover {
 	background: #1E1F26;
