@@ -1,21 +1,20 @@
 .selectedWord {
-	resize: both;
+/* 	resize: both; */
 	overflow: auto;
     position: absolute;
     z-index: 9999999;
     width: fit-content;
 	color: white;
-	opacity: 0.1;
     padding: 1px;
     margin-top: 18px;
     font-family: Calibri;
 	font-size: 15px;
-	height: 400px;
-	width: 300px;
-	max-height: 1000px !important;
+/* 	max-height: 1000px !important;
 	max-width: 800px !important;
 	min-height: 225px !important;
-	min-width: 150px !important;
+	min-width: 150px !important; */
+	width: 350px;
+	height: 500px;
 	-moz-user-select: none;
 	-webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
@@ -36,8 +35,8 @@
     margin-top: 18px;
     font-family: Calibri;
 	font-size: 15px;
-	height: 32px;
-	width: 32px;
+	height: 32px !important;
+	width: 32px !important;
 	background: url(https://i.imgur.com/Hgh0u2z.png) no-repeat round;
 	-moz-user-select: none;
 	-webkit-touch-callout: none; /* iOS Safari */
@@ -95,6 +94,53 @@ table .sistemas:hover {
 }
 .highlight { 
 	background-color: yellow; 
+}
+.lexicalCategory {
+	font-size: 22px;
+	font-family: 'Times New Roman', Times, serif;
+}
+.headerNode {
+	display: flex;
+	height: 10%;
+}
+.imgNode {
+    width: 15%;
+    height: 100%;
+}
+.middleNode {
+	background-color: #201f22;
+    border: 2px solid #3A3A3D;
+}
+.flexRightNode {
+    width: 85%;
+    background-color: #09080a;
+    border-left: 2px solid #3A3A3D;
+}	
+.footerNode {
+	display: flex;
+	height: 66px;
+	background: url(https://i.imgur.com/4at5vxk.jpg) no-repeat round;
+}
+.wordNode {
+		margin-left: 5px;
+		font-size: 35px;		
+		color: lightblue;
+		margin: 10px;
+		font-weight: 600;
+}
+.lexicalCategoryDiv {
+	margin: 10px;
+    font-size: 130%;
+}
+.lexicalCategorySubDiv {
+	margin-left: 1%;
+}
+.lexicalCategoryP {
+	font-size: 135%;
+	font-style: italic;
+}
+.definitionsNode {
+	margin-left: 5%;
 }
 
 #DefineItTextToBold {

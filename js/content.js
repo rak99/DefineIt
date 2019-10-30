@@ -6,6 +6,13 @@
 
 // !-- Trim the selection to eliminate spaces, also - stop popup from executing if there are more than 2 words, or if the user wants maybe they can enable a beta mode where mutliple words can be selected and there will be multiple words
 // !-- in the popup, all of which can be dropped down
+// !-- IMPORTANT -- ADD TIMEOUT IF MORE THAN LET'S SAY 3 WORDS ARE SELECTED IN 30 SECONDS, maybe add timeout for one request every 60 sec and
+// !--  if you pay $1 unlimited access
+// !-- Footernode is currently child in selectedWord, put it in body maybe too or find a way to make the ad part not scrollable so it's always visible
+// !-- Cache definitions or something so double definition doesn't make api calls, force it to refresh after a few days though
+// !-- Disable icon mode
+// !-- Scratch the resizer for now
+// !-- To find, ctrl + f 'Scratch the resizer for now' to undo it
 
 // ! ----- Modes of requests ----- !
 
@@ -42,9 +49,20 @@ let fullAPIURL = '';
 let newBoldElement = '';
 let rangeWindow = '';
 let bold = '';
-
+let isIconActive = false;
+// Vars for popup content
+let lexicalCategoryArr = [];
+// Order of definitions might be something I still need to figure out
+let definitions = [];
+let APIword = '';
+let wordNode = '';
+let lexicalCategoryDiv = '';
+let iconPopupExists = false;
+let pageIsBlacklisted = true;
 
 function popupIcon() {
+    console.log('SHOUDLN\'T HAPPEN AFTER ICON CLICK');
+    isIconActive = true;
     var body = document.body,
     html = document.documentElement;
 
@@ -56,7 +74,7 @@ function popupIcon() {
          );
     console.log(boldPosition);
     let iconPopup = popupNode;
-    iconPopup.id = 'defineIt-popupNode';
+    iconPopup.id = 'defineIt-iconNode';
     iconPopup.className = 'popupIcon';
     iconPopup.addEventListener('mouseenter', function(e) {
         iconPopup.style.opacity = '1.0';
@@ -66,40 +84,70 @@ function popupIcon() {
     });
     // !-- Old way that gets cropped --!
     // range.insertNode(iconPopup);
-    console.log(iconPopup);
+
+    let containerNode = document.createElement('div');
+    containerNode.className = 'containerNode';
+    // SelectedWord Node, put the    header, middle, footer
+
+    // Then header div 
+    let headerNode = document.createElement('div');
+        headerNode.className = 'headerNode';
+
+        // with 1 img child 1 div rightside child
+        // Rightside div could possibly be ad
+
+        let imgNode = document.createElement('img');
+        imgNode.className = 'imgNode';
+        imgNode.src = 'https://i.imgur.com/XKkHJ8K.png';
+        headerNode.appendChild(imgNode);
+
+        let flexRightNode = document.createElement('div');
+        flexRightNode.className = 'flexRightNode';
+        headerNode.appendChild(flexRightNode);
+        containerNode.appendChild(headerNode);
+
+    // Then middle div container
+    let middleNode = document.createElement('div');
+
+        middleNode.className = 'middleNode';
+        middleNode.appendChild(wordNode);
+        middleNode.appendChild(lexicalCategoryDiv);
+
+        middleNode.appendChild(definitionsNode);
+        containerNode.appendChild(middleNode);
+        // Not sure what this should contain yet
+        // Word
+        // lexicalCategory
+        // Definitions
+        // AND A LOOP for everyone
+
+    // Then footer container, potentially with an ad
+    let footerNode = document.createElement('div');
+        footerNode.className = 'footerNode';
+
+        // !-- UNDO THIS LATER FOR ADS
+
+    // containerNode.appendChild(footerNode);
+
     document.getElementsByTagName('body')[0].insertBefore(iconPopup, document.getElementsByTagName('body')[0].firstChild);
-    var ro = new ResizeObserver( entries => {
-        for (let entry of entries) {
-            const cr = entry.contentRect;
-            console.log('Element:', entry.target);
-            console.log(`Element size: ${cr.width}px x ${cr.height}px`);
-            console.log(`Element padding: ${cr.top}px ; ${cr.left}px`);
-            if (cr.width !== 0 || cr.height !== 0) {
-            popupDimensionsResize = cr;
-            }
-        }
-        chrome.runtime.sendMessage({text: 'resizePopup', dimensions: { width: popupDimensionsResize.width, height: popupDimensionsResize.height }});
-        chrome.storage.local.set({popupDimensions: { width: popupDimensionsResize.width, height: popupDimensionsResize.height}}, function() {
-            console.log('Value is set to ' + JSON.stringify(popupDimensionsResize));
-        });
-        return entries;
-    });
     const showPopup = (e) => {
-        if (e.which === 1) {
+        console.log('DONT HAPPEN AFTER LOGO CLICK');
+        if (e.which === 1 && iconPopupExists === true) {
             // !-- Remove if else later if I decide a single click outside popup should close with contextMenu open
             if (contextMenuExists === true) {
                 contextMenuExists = false;
             } else {
-                if ( document.getElementById('defineIt-popupNode') ) {
+                if ( document.getElementById('defineIt-iconNode') ) {
                     let iconPopupPositions = iconPopup.getBoundingClientRect();
                     let iconPopupLeftToRight = iconPopupPositions.x + iconPopupPositions.width;
                     let iconPopupTopToBottom = iconPopupPositions.y + iconPopupPositions.height;
                     var x = event.clientX;     // Get the horizontal coordinate
                     var y = event.clientY;     // Get the vertical coordinate
+
+                    console.log(iconPopupPositions);
                     // rangeNew.contents().unwrap();
                     if (document.getElementById('DefineItTextToBold')) {
                         document.getElementById('DefineItTextToBold').removeAttribute('id');
-                        console.log(rangeNew);
                         // $(rangeNew.commonAncestorContainer).contents().unwrap();
                     };
                     // !-- Above fixed what bottom may be able to but better, not sure yet
@@ -108,13 +156,23 @@ function popupIcon() {
                     $(bold).contents().unwrap();
                     var coor = "X coords: " + x + ", Y coords: " + y;
                     if ( ( x < (iconPopupPositions.x) || x > iconPopupLeftToRight ) || y < (iconPopupPositions.y) || y > iconPopupTopToBottom ) {
-                        console.log('SHOULD BE OUTSIDE');
+                        console.log('SHOULD BE OUTSIDE Icon');
                         // range.startContainer.childNodes[rangeNode].remove();
                         $(span).contents().unwrap();
-                        document.getElementById('defineIt-popupNode').remove();
+                        window.removeEventListener('mouseenter', iconPopup);
+                        window.removeEventListener('mouseleave', iconPopup);
+                        document.getElementById('defineIt-iconNode').remove();
+                        iconPopupExists = false;
                         window.removeEventListener('mousedown', showPopup, false);
                         let iconPopupPosition = iconPopup.getBoundingClientRect();
                         iconPopup.style.left = (boldPosition.left - iconPopupPosition.left + 'px') + iconPopup.style.width;
+                    } else {
+                        window.removeEventListener('mouseenter', iconPopup);
+                        window.removeEventListener('mouseleave', iconPopup);
+                        window.removeEventListener('mousedown', showPopup, false);
+                        document.getElementById('defineIt-iconNode').remove();
+                        iconPopupExists = false;
+                        doPositioning(containerNode);
                     }
                 }
             }
@@ -123,7 +181,6 @@ function popupIcon() {
         }
     };
     // Observe one or multiple elements
-    ro.observe(iconPopup);
     let iconPopupPositionStart = iconPopup.getBoundingClientRect();
     let iconPopupLeftToRightStart = iconPopupPositionStart.x + iconPopupPositionStart.width;
     let iconPopupTopToBottomStart = iconPopupPositionStart.y + iconPopupPositionStart.height;
@@ -133,21 +190,22 @@ function popupIcon() {
         // Trigger from top
         iconPopup.style.top = boldPosition.top - parseInt(iconPopup.style.height) + 15 - 50 - span.offsetHeight + 'px';
     } else {
-        console.log(iconPopup);
         iconPopup.style.top = boldPosition.top + 'px';
     }
     overlapWidth = documentWidth - iconPopup.getBoundingClientRect().x;
     let rangeNode = rangeWindow.startOffset;
     if ( overlapWidth < parseInt(iconPopup.style.width)+26 ) {
-        if (document.getElementById('defineIt-popupNode')) {
+        if (document.getElementById('defineIt-iconNode')) {
             iconPopup.style.left = parseInt(iconPopup.style.left) - (parseInt(iconPopup.style.width)+26 - overlapWidth) + 'px';
         }
     }
     window.addEventListener('mousedown', showPopup, false);
-    iconPopup.addEventListener('click', () => doPositioning());
 }
 
-function doPositioning() {
+function doPositioning(popupNode) {
+    if (document.getElementById('defineIt-iconNode')) {
+        document.getElementById('defineIt-iconNode').remove();
+    }
     var body = document.body,
     html = document.documentElement;
 
@@ -157,20 +215,13 @@ function doPositioning() {
     var documentWidth = Math.max( body.scrollWidth, body.offsetWidth,
         html.clientWidth, html.scrollWidth, html.offsetWidth
          );
-    console.log(boldPosition);
     popupNode.id = 'defineIt-popupNode';
     popupNode.className = 'selectedWord';
-    popupNode.addEventListener('mouseenter', function(e) {
-        popupNode.style.opacity = '1.0';
-    });
-    popupNode.addEventListener('mouseleave', function(e) {
-        popupNode.style.opacity = '';
-    });
     // !-- Old way that gets cropped --!
     // range.insertNode(popupNode);
-    console.log(popupNode);
     document.getElementsByTagName('body')[0].insertBefore(popupNode, document.getElementsByTagName('body')[0].firstChild);
-    var ro = new ResizeObserver( entries => {
+    // !-- Scratch the resizer for now
+/*     var ro = new ResizeObserver( entries => {
         for (let entry of entries) {
             const cr = entry.contentRect;
             console.log('Element:', entry.target);
@@ -180,12 +231,12 @@ function doPositioning() {
             popupDimensionsResize = cr;
             }
         }
-        chrome.runtime.sendMessage({text: 'resizePopup', dimensions: { width: popupDimensionsResize.width, height: popupDimensionsResize.height }});
+        // chrome.runtime.sendMessage({text: 'resizePopup', dimensions: { width: popupDimensionsResize.width, height: popupDimensionsResize.height }});
         chrome.storage.local.set({popupDimensions: { width: popupDimensionsResize.width, height: popupDimensionsResize.height}}, function() {
             console.log('Value is set to ' + JSON.stringify(popupDimensionsResize));
         });
         return entries;
-    });
+    }); */
     const showPopup = (e) => {
         if (e.which === 1) {
             // !-- Remove if else later if I decide a single click outside popup should close with contextMenu open
@@ -201,7 +252,6 @@ function doPositioning() {
                     // rangeNew.contents().unwrap();
                     if (document.getElementById('DefineItTextToBold')) {
                         document.getElementById('DefineItTextToBold').removeAttribute('id');
-                        console.log(rangeNew);
                         // $(rangeNew.commonAncestorContainer).contents().unwrap();
                     };
                     // !-- Above fixed what bottom may be able to but better, not sure yet
@@ -210,7 +260,7 @@ function doPositioning() {
                     $(bold).contents().unwrap();
                     var coor = "X coords: " + x + ", Y coords: " + y;
                     if ( ( x < (popupNodePositions.x) || x > popupNodeLeftToRight ) || y < (popupNodePositions.y) || y > popupNodeTopToBottom ) {
-                        console.log('SHOULD BE OUTSIDE');
+                        console.log('SHOULD BE OUTSIDE Popup');
                         // range.startContainer.childNodes[rangeNode].remove();
                         $(span).contents().unwrap();
                         document.getElementById('defineIt-popupNode').remove();
@@ -225,7 +275,8 @@ function doPositioning() {
         }
     };
     // Observe one or multiple elements
-    ro.observe(popupNode);
+    // !-- Scratch the resizer for now
+    // ro.observe(popupNode);
     let popupNodePositionStart = popupNode.getBoundingClientRect();
     let popupNodeLeftToRightStart = popupNodePositionStart.x + popupNodePositionStart.width;
     let popupNodeTopToBottomStart = popupNodePositionStart.y + popupNodePositionStart.height;
@@ -235,7 +286,6 @@ function doPositioning() {
         // Trigger from top
         popupNode.style.top = boldPosition.top - parseInt(popupNode.style.height) + 15 - 50 - span.offsetHeight + 'px';
     } else {
-        console.log(popupNode);
         popupNode.style.top = boldPosition.top + 'px';
     }
     overlapWidth = documentWidth - popupNode.getBoundingClientRect().x;
@@ -252,7 +302,6 @@ function doPositioning() {
 function executeExtension() {
     // Find element's position relative to the document (so if scrolled down this is very useful)
     function getCoords(elem) { // crossbrowser version
-        console.log(elem);
         var box = elem.getBoundingClientRect();
     
         var body = document.body;
@@ -339,7 +388,6 @@ function executeExtension() {
         
                 // Rework to use x and y rather than document I think... 
                 text = window.getSelection().toString().trim();
-                console.log(text);
                 let selectedDOM = window.getSelection().focusNode;
                 // !-- This below method may be inconsistent if there are more versions of the dom element surrounding the selection, this method searches the entire body for the text, and assumes it appears only once.
                 // Use below as reference, with the emphasis on range as it allows dom insertion at the specific select.
@@ -354,11 +402,10 @@ function executeExtension() {
 
                 popupNode = document.createElement('div');
                 popupNode.className = "selectedWord";
-    
-                chrome.storage.local.get(['popupDimensions'], function(result) {
-                    console.log('Value currently is ' + JSON.stringify(result));
+                // !-- Scratch the resizer for now
+/*                 chrome.storage.local.get(['popupDimensions'], function(result) {
+                    console.log(result);
                     parsedStringifiedResult = JSON.parse(JSON.stringify(result));
-                    console.log(parsedStringifiedResult);
                     syncedPopupWidth = parsedStringifiedResult.popupDimensions.width;
                     syncedPopupHeight = parsedStringifiedResult.popupDimensions.height;
                     if (syncedPopupWidth !== 0 && syncedPopupHeight !== 0) {
@@ -368,12 +415,11 @@ function executeExtension() {
                         popupNode.style.width = '350px';
                         popupNode.style.height = '500px';
                     }
-                });
+                }); */
                 // !-- Add localStorage capture of resize
     
                 // !-- New idea, maybe try a bunch of dictionary websites, either at the same time, first one with a 200 response or something is used, or by order of if 404;
                 // !-- Like promises
-                console.log(rangeWindow);
     /*                         rangeWindow.endContainer.appendChild(rangeWindow.extractContents());
                 // range.surroundContents(bold);
                 // !-- Gonna have to change this to do bottom way as well maybe
@@ -384,14 +430,11 @@ function executeExtension() {
                 span.id = 'DefineItTextToBold';
                 span.appendChild(rangeNew.extractContents());
                 rangeNew.insertNode(span);
-                console.log(rangeNew, span);
                 newBoldElement = document.getElementById('DefineItTextToBold');
-                console.log(newBoldElement);
                 boldPosition = getCoords(newBoldElement);
                 selectElement(newBoldElement);
-                console.log(boldPosition);
                 fullAPIURL = 'https://od-api.oxforddictionaries.com/api/v2' + '/lemmas/' + language + '/' + text;
-                if (text.indexOf(' ') === -1 && text.length <= 45) {
+                if (text.indexOf(' ') === -1 && text.length <= 45 && !document.getElementById('defineIt-popupNode')) {
                     chrome.runtime.sendMessage({text: 'API_CALL', url: fullAPIURL, word: text});
                 }
                 // !-- Decide if we want to make height and width not a constant, atm getting height and width at this stage doesn't work, what we could do is define
@@ -418,35 +461,65 @@ function executeExtension() {
     }
     window.addEventListener('mouseup', function(e) {
         stopFunction = false;
-        getSelectionText(e);
+        //if (isIconActive === false) {
+            //getSelectionText(e);
+        //}
+        if (!document.getElementById('defineIt-popupNode')) {
+            getSelectionText(e);
+        }
     });
     chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-        if (request.text === "API_RESPONSE") {
-            popupIcon();
-
-            console.log(boldPosition);
-            console.log(request);
+        if (request.text === "API_RESPONSE" && !document.getElementById('defineIt-iconNode')) {
+            console.log('HAPPENING AFTER CLICK?');
             let API_resp_data = JSON.parse(request.data).results;
-            console.log(API_resp_data);
             let id = API_resp_data.id;
-            let word = API_resp_data.word;
             let type = API_resp_data.type;
+            lexicalCategoryDiv = document.createElement('div');
+            lexicalCategoryDiv.className = 'lexicalCategoryDiv';
+            definitionsNode = document.createElement('div');
+            definitionsNode.className = 'definitionsNode';
             // language = elt.language
             // Det different lexicalCategories
             for (let elt of API_resp_data) {
+                APIword = elt.word;
+                wordNode = document.createElement('p');
+                wordNode.textContent = APIword;
+                wordNode.className = 'wordNode';
+
+                console.log(APIword);
                 for (let elts of elt.lexicalEntries) {
-                    console.log('This is the ' + elts.lexicalCategory.id + ' form')
+                    let definitionsNode = document.createElement('div');
+                    definitionsNode.className = 'definitionsNode';
+                    let lexicalCategorySubDiv = document.createElement('div');
+                    lexicalCategorySubDiv.className = 'lexicalCategorySubDiv';
+                    let lexicalCategoryP = document.createElement('p');
+                    lexicalCategoryP.className = 'lexicalCategoryP';
+                    lexicalCategoryP.textContent = elts.lexicalCategory.id;
+
+                    // Still need to style lexicalCategory
+
+                    lexicalCategorySubDiv.appendChild(lexicalCategoryP);
+                    //lexicalCategoryArr.push()
+                    // lexicalCategoryArr.push(lexicalCategoryP);
                     for (let eltz of elts.entries[0].senses) {
-                        console.log(eltz.definitions[0]);
+                        let definition = eltz.definitions[0];
+                        let definitionNode = document.createElement('p');
+                        definitionNode.textContent = definition;
+                        definitionNode.className = 'definitions';
+                        definitionsNode.appendChild(definitionNode);
+                        definitions.push(definitionNode);
                     }
+                    lexicalCategorySubDiv.appendChild(definitionsNode);
+                    lexicalCategoryDiv.appendChild(lexicalCategorySubDiv);
                 }
             }
+            iconPopupExists = true;
+            popupIcon();
         }
     });          
 }
 
 chrome.storage.local.get(['blacklistedURLS'], function(res) {
-    console.log('Currently blacklisted URLS are', res);
 
     if (res.blacklistedURLS) {
         // Problem: If the domain is blacklisted but the page isn't, and we check the array for an index of the window location href
@@ -455,15 +528,16 @@ chrome.storage.local.get(['blacklistedURLS'], function(res) {
         // This should work as all we want to know is if either the domain or the page is blacklisted, then this shouldn't work at all and we don't 
         // care which on this page, just that it shouldn't work
         let joinedBlacklists = res.blacklistedURLS.join(' ');
-        console.log(joinedBlacklists);
-        console.log(window.location.href.indexOf(joinedBlacklists));
 
         if (joinedBlacklists.length === 0) {
+            pageIsBlacklisted = false;
             executeExtension()
         } else if (window.location.href.indexOf(joinedBlacklists) === -1) {
+            pageIsBlacklisted = false;
             executeExtension();
         }
     } else {
+        pageIsBlacklisted = false;
         executeExtension()
     }
 });
