@@ -60,8 +60,9 @@ let lexicalCategoryDiv = '';
 let iconPopupExists = false;
 let pageIsBlacklisted = true;
 
+
 function popupIcon() {
-    console.log('SHOUDLN\'T HAPPEN AFTER ICON CLICK');
+    console.log('SHOUDLN\'T HAPPEN AFTER ICON CLICK', lexicalCategoryDiv);
     isIconActive = true;
     var body = document.body,
     html = document.documentElement;
@@ -98,7 +99,8 @@ function popupIcon() {
 
         let imgNode = document.createElement('img');
         imgNode.className = 'imgNode';
-        imgNode.src = 'https://i.imgur.com/XKkHJ8K.png';
+        // !-- Change to local file
+        imgNode.src = 'https://i.imgur.com/9JXSmyz.png';
         headerNode.appendChild(imgNode);
 
         let flexRightNode = document.createElement('div');
@@ -113,7 +115,8 @@ function popupIcon() {
         middleNode.appendChild(wordNode);
         middleNode.appendChild(lexicalCategoryDiv);
 
-        middleNode.appendChild(definitionsNode);
+        // Below is empty for some reason
+        //middleNode.appendChild(definitionsNode);
         containerNode.appendChild(middleNode);
         // Not sure what this should contain yet
         // Word
@@ -502,9 +505,17 @@ function executeExtension() {
                     //lexicalCategoryArr.push()
                     // lexicalCategoryArr.push(lexicalCategoryP);
                     for (let eltz of elts.entries[0].senses) {
-                        let definition = eltz.definitions[0];
+                        let definitionSpan = document.createElement('div');
+                        definitionSpan.textContent = '-';
+                        definitionSpan.className = 'definitionSpan';
+                        //let definition = eltz.definitions[0];
+                        let definition = document.createElement('span');
+                        definition.textContent = eltz.definitions[0];
                         let definitionNode = document.createElement('p');
-                        definitionNode.textContent = definition;
+                        console.log(definitionNode);
+                        definitionNode.appendChild(definitionSpan);
+                        definitionNode.appendChild(definition);
+                        // definitionNode.textContent = definition;
                         definitionNode.className = 'definitions';
                         definitionsNode.appendChild(definitionNode);
                         definitions.push(definitionNode);

@@ -14,7 +14,10 @@
 	min-height: 225px !important;
 	min-width: 150px !important; */
 	width: 350px;
-	height: 500px;
+	min-height: 250px;
+	height: fit-content;
+	box-shadow: 5px 5px 4px rgba(25,25,25);
+	/* height: 500px; */
 	-moz-user-select: none;
 	-webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
@@ -22,7 +25,7 @@
        -moz-user-select: none; /* Firefox */
         -ms-user-select: none; /* Internet Explorer/Edge */
             user-select: none; /* Non-prefixed version, currently
-                                  supported by Chrome and Opera */
+								  supported by Chrome and Opera */
 }
 .popupIcon {
 	overflow: auto;
@@ -101,10 +104,10 @@ table .sistemas:hover {
 }
 .headerNode {
 	display: flex;
-	height: 10%;
+	height: 32px;
 }
 .imgNode {
-    width: 15%;
+    width: 32px;
     height: 100%;
 }
 .middleNode {
@@ -112,7 +115,7 @@ table .sistemas:hover {
     border: 2px solid #3A3A3D;
 }
 .flexRightNode {
-    width: 85%;
+    width: 100%;
     background-color: #09080a;
     border-left: 2px solid #3A3A3D;
 }	
@@ -134,13 +137,23 @@ table .sistemas:hover {
 }
 .lexicalCategorySubDiv {
 	margin-left: 1%;
+	margin-top: 10px;
 }
 .lexicalCategoryP {
 	font-size: 135%;
 	font-style: italic;
+	margin: 0px 0px 8px 0px;
+	text-decoration: underline;
+	text-decoration-color: darkseagreen;
 }
 .definitionsNode {
-	margin-left: 5%;
+}
+.definitions {
+	display: flex;
+	margin-bottom: 10px;
+}
+.definitionSpan {
+	margin-right: 5%;
 }
 
 #DefineItTextToBold {
