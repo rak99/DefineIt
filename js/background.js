@@ -80,7 +80,8 @@ chrome.storage.local.get(['API_CREDENTIALS'], function(result) {
                         let parsedText = JSON.parse(text);
                         let word = parsedText.results[0].lexicalEntries[0].inflectionOf[0].text;
                         let language = 'en-gb';
-                        fetch('https://od-api.oxforddictionaries.com/api/v2' + '/entries/' + language + '/' + word + '?fields=definitions&strictMatch=false', {
+                        // !-- Add examples to fields, put it in each lexicalCategory
+                        fetch('https://od-api.oxforddictionaries.com/api/v2' + '/entries/' + language + '/' + word + '?fields=definitions,examples&strictMatch=false', {
                             headers: {
                                 'app_id': atob(result.API_CREDENTIALS.id),
                                 'app_key': atob(result.API_CREDENTIALS.key)

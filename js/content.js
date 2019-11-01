@@ -13,6 +13,9 @@
 // !-- Disable icon mode
 // !-- Scratch the resizer for now
 // !-- To find, ctrl + f 'Scratch the resizer for now' to undo it
+// !-- Fix unnecessary api requests, maybe on hover of the icon make the request 
+
+// !-- ADD LANGUAGE SELECTION IN POPUP, IF ENLGISH BECOMES SUCCESSFUL
 
 // ! ----- Modes of requests ----- !
 
@@ -303,6 +306,7 @@ function doPositioning(popupNode) {
 
 
 function executeExtension() {
+    console.log('select AASSSADASDASD');
     // Find element's position relative to the document (so if scrolled down this is very useful)
     function getCoords(elem) { // crossbrowser version
         var box = elem.getBoundingClientRect();
@@ -322,6 +326,7 @@ function executeExtension() {
     };
     
     function selectElement(element) {
+        console.log('select AASSSADASDASD');
         if (window.getSelection) {
             var sel = window.getSelection();
             sel.removeAllRanges();
@@ -340,7 +345,7 @@ function executeExtension() {
     });
     
     function getSelectionText(e) {
-    
+        console.log('select AASSSADASDASD');
         var body = document.body,
         html = document.documentElement;
     
@@ -385,6 +390,7 @@ function executeExtension() {
         // do getBoundingClientRect() on it and scroll the popup down there, I'm pretty sure it's easy to do.
     
         if (e.which === 1) {
+            console.log('select AASSSADASDASD');
             var text = "";
             if (window.getSelection && window.getSelection().toString().trim().length > 0) {
                 // !-- IMPORTANT, STOP DESELECTION SO USERS CAN'T COPY WHEN HIGHLIGHTED
@@ -444,6 +450,7 @@ function executeExtension() {
                 // !-- it with js, that we can access it here, problem is media queries work nicely  
                 // Styling
             } else if (document.selection && document.selection.type != "Control" && document.selection.createRange().text.length > 0) {
+                console.log('select AASSSADASDASD');
                 text = document.selection.createRange().text;
                 let selectedDOM = document.selection.createRange().focusNode;
                 // Begin popup ---
@@ -463,15 +470,20 @@ function executeExtension() {
         }
     }
     window.addEventListener('mouseup', function(e) {
+        console.log('select AASSSADASDASD');
         stopFunction = false;
         //if (isIconActive === false) {
             //getSelectionText(e);
         //}
-        if (!document.getElementById('defineIt-popupNode')) {
+        if (!document.getElementById('defineIt-popupNode') && window.getSelection().toString().length > 42) {
+            // API Call, check return if valid word
+            chrome.runtime.sendMessage({text: 'API_EXISTS', url: fullAPIURL, word: text});
+            https://od-api.oxforddictionaries.com/api/v2/lemmas/en/ace
             getSelectionText(e);
         }
     });
     chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+        console.log('select AASSSADASDASD');
         if (request.text === "API_RESPONSE" && !document.getElementById('defineIt-iconNode')) {
             console.log('HAPPENING AFTER CLICK?');
             let API_resp_data = JSON.parse(request.data).results;
@@ -484,6 +496,7 @@ function executeExtension() {
             // language = elt.language
             // Det different lexicalCategories
             for (let elt of API_resp_data) {
+                console.log(elt);
                 APIword = elt.word;
                 wordNode = document.createElement('p');
                 wordNode.textContent = APIword;
@@ -510,14 +523,28 @@ function executeExtension() {
                         definitionSpan.className = 'definitionSpan';
                         //let definition = eltz.definitions[0];
                         let definition = document.createElement('span');
+                        definition.className = 'definition';
+                        let example = document.createElement('span');
                         definition.textContent = eltz.definitions[0];
+                        // example.textContent = eltz.examples[0].text;
+                        example.className = 'example';
+                        let forwardSlashes = document.createElement('span');
+                        forwardSlashes.className = 'forwardSlashes';
+                        forwardSlashes.textContent = '//';
+                        let exampleText = document.createElement('span');
+                        exampleText.textContent = eltz.examples[0].text;
+                        exampleText.className = 'exampleText';
+                        example.appendChild(forwardSlashes);
+                        example.appendChild(exampleText);
                         let definitionNode = document.createElement('p');
                         console.log(definitionNode);
                         definitionNode.appendChild(definitionSpan);
                         definitionNode.appendChild(definition);
+                        //definitionNode.appendChild(example);
                         // definitionNode.textContent = definition;
                         definitionNode.className = 'definitions';
                         definitionsNode.appendChild(definitionNode);
+                        definitionsNode.appendChild(example);
                         definitions.push(definitionNode);
                     }
                     lexicalCategorySubDiv.appendChild(definitionsNode);

@@ -14,8 +14,8 @@
 	min-height: 225px !important;
 	min-width: 150px !important; */
 	width: 350px;
-	min-height: 250px;
-	height: fit-content;
+	max-height: fit-content;
+	height: 500px;
 	box-shadow: 5px 5px 4px rgba(25,25,25);
 	/* height: 500px; */
 	-moz-user-select: none;
@@ -150,7 +150,18 @@ table .sistemas:hover {
 }
 .definitions {
 	display: flex;
-	margin-bottom: 10px;
+	margin-top: 25px;
+	margin-bottom: 5px;
+	line-height: 22px;
+}
+.example {
+	margin-left: 8%;
+	color: #ADD8E6;
+	font-style: italic;
+	display: flex;
+}
+.forwardSlashes {
+	margin-right: 2%;
 }
 .definitionSpan {
 	margin-right: 5%;
