@@ -311,7 +311,7 @@ function doPositioning(popupNode) {
 
 
 function executeExtension() {
-
+    console.log('HELLLOOOOOOOOOOOO squadR');
     if (document.getElementById('defineIt-popupNode')) {
         document.getElementById('defineIt-popupNode').remove();    
     }
@@ -480,22 +480,13 @@ function executeExtension() {
         }
     }
 
-
-    window.addEventListener('mousedown', function(e) {
-        if (window.getSelection().toString().trim().length > 0) {
-            console.log('selected away, don\'t call api');
-            /* window.removeEventListener('mouseup', windowMouseUp); */
-            dontcall = true;
-        } else {
-/*             if (window.getSelection().toString().trim().length < 1) {
-                window.removeEventListener('mouseup', windowMouseUp);
-            } */
-            dontcall = false;
-        }
-    });
     const windowMouseUp = (e) => {
+        console.log('mouseUp');
         stopFunction = false;
-        let wordDOM = window.getSelection().focusNode;
+        let wordDOM = '';
+        if (window.getSelection().focusNode) {
+            wordDOM = window.getSelection().focusNode;
+        }
         console.log(wordDOM);
         let wordDOMChildrenArr = '';
         if (wordDOM) {
@@ -542,12 +533,12 @@ function executeExtension() {
                 // !-- Check if we should call api
                 console.log('check');
                 let trimmedDownSelection = window.getSelection().toString().trim().toLowerCase();
-
+    
                 // Array structure
                 // Find out if words are captured as lowercase/uppercase or inconsistently depending on the selected word, force it lowercase if not done by default
                 // if capturedWordsData.indexOf(trimmedDownSelection) !== -1 { // Fetch word from here rather than API }c
                 // If not found save it to local, otherwise fetch it from local, use the api request to save it then fetch it from there
-
+    
                 chrome.storage.local.get(['dictionary_word_array'], function(res) {
                     if (res.dictionary_word_array) {
                         let dictionary_data = [];
@@ -776,8 +767,27 @@ function executeExtension() {
         }
         window.removeEventListener('mouseup', windowMouseUp, false);
     }
-    window.addEventListener('mouseup', windowMouseUp, false);
+
+    const mouseDownClickAway = () => {
+        if (window.getSelection().toString().trim().length > 0) {
+            console.log('selected away, don\'t call api');
+            window.removeEventListener('mousedown', mouseDownClickAway, false);
+            dontcall = true;
+        } else {
+/*             if (window.getSelection().toString().trim().length < 1) {
+               
+            } */
+            // dontcall = false;
+            // Do checks on mouseup, then executeExtensions
+            window.removeEventListener('mousedown', mouseDownClickAway, false);
+            window.addEventListener('mouseup', windowMouseUp, false);
+        }
+    }
+    window.addEventListener('mousedown', mouseDownClickAway, false);
 }
+
+
+
 
 chrome.storage.local.get(['blacklistedURLS'], function(res) {
 
@@ -788,16 +798,19 @@ chrome.storage.local.get(['blacklistedURLS'], function(res) {
         // This should work as all we want to know is if either the domain or the page is blacklisted, then this shouldn't work at all and we don't 
         // care which on this page, just that it shouldn't work
         let joinedBlacklists = res.blacklistedURLS.join(' ');
-
+        console.log('HELLO SQUADR');
         if (joinedBlacklists.length === 0) {
             pageIsBlacklisted = false;
-            executeExtension()
+            // Add mouse event listeners
+            executeExtension();
         } else if (window.location.href.indexOf(joinedBlacklists) === -1) {
             pageIsBlacklisted = false;
+            // Add mouse event listeners
             executeExtension();
         }
     } else {
         pageIsBlacklisted = false;
+        // Add mouse event listeners
         executeExtension()
     }
 });
