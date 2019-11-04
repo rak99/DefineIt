@@ -16,7 +16,7 @@
 	width: 350px;
 	max-height: fit-content;
 	height: 500px;
-	box-shadow: 5px 5px 4px rgba(25,25,25);
+	/* box-shadow: 5px 5px 4px rgba(25,25,25); */
 	/* height: 500px; */
 	-moz-user-select: none;
 	-webkit-touch-callout: none; /* iOS Safari */
