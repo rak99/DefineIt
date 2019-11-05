@@ -14,10 +14,16 @@
 // !-- Scratch the resizer for now
 // !-- To find, ctrl + f 'Scratch the resizer for now' to undo it
 // !-- Fix unnecessary api requests, maybe on hover of the icon make the request 
+// !-- Add loading screen
 
 // !-- ADD LANGUAGE SELECTION IN POPUP, IF ENLGISH BECOMES SUCCESSFUL
 
 // ! ----- Modes of requests ----- !
+
+// !-- TODO RHENIERRRRRRRRRRRRR
+// Make a popupNode.html and iconNode.html in it and use the same method we use to get the spinner.html data from background.js, put in all the divs and stuff
+// Then just edit textContent here in content.js
+// Also need to add a limit to network calls
 
 // Consider adding hover mode, check wikipedia functionality for idea on implementation
 
@@ -60,10 +66,302 @@ let definitions = [];
 let APIword = '';
 let wordNode = '';
 let lexicalCategoryDiv = '';
-let iconPopupExists = false;
 let pageIsBlacklisted = true;
 let dontcall = false;
+let trimmedDownSelection = '';
 
+function getLocal() {
+    console.log('GET_LOCAL');
+    chrome.storage.local.get(['dictionary_word_array'], function(res) {
+        if (res.dictionary_word_array) {
+            let dictionary_data = [];
+            console.log('dictionary_word_array exists', res.dictionary_word_array);
+            let capturedWordsDataArr = res.dictionary_word_array;
+            let dictionaryWordExists = res.dictionary_word_array;
+            let wordFoundInDictionaryArrIndex = res.dictionary_word_array.indexOf(trimmedDownSelection) !== -1;
+            if (wordFoundInDictionaryArrIndex === true) {
+                console.log('word found from local');
+                let wordIndex = res.dictionary_word_array.indexOf(trimmedDownSelection);
+                console.log(res.dictionary_word_array);
+                // Word found, fetch from local data
+                chrome.storage.local.get(['dictionary_data'], function(res) {
+                    if (res.dictionary_data) {
+                        //dictionary_data = res.dictionary_data ? res.dictionary_data : [];
+                        dictionary_data = res.dictionary_data;
+                        console.log(dictionary_data);
+                        console.log(wordIndex);
+                        console.log(capturedWordsDataArr);
+                        console.log(dictionaryWordExists);
+                        console.log('HAPPENING AFTER CLICK?');
+                        // let API_resp_data = JSON.parse(request.data).results;
+                        let API_resp_data = dictionary_data[wordIndex];
+                        console.log(API_resp_data);
+/*                             dictionary_data.push(API_resp_data);
+                        chrome.storage.local.set({dictionary_data: dictionary_data}); */
+                        let id = API_resp_data.id;
+                        let type = API_resp_data.type;
+                        lexicalCategoryDiv = document.createElement('div');
+                        lexicalCategoryDiv.className = 'lexicalCategoryDiv';
+                        definitionsNode = document.createElement('div');
+                        definitionsNode.className = 'definitionsNode';
+                        // language = elt.language
+                        // Det different lexicalCategories
+                        console.log('HELLOOOOOOOOOO');
+                        for (let elt of API_resp_data) {
+                            console.log(elt);
+                            APIword = elt.word;
+                            wordNode = document.createElement('p');
+                            wordNode.textContent = APIword;
+                            wordNode.className = 'wordNode';
+            
+                            console.log(APIword);
+                            for (let elts of elt.lexicalEntries) {
+                                let definitionsNode = document.createElement('div');
+                                definitionsNode.className = 'definitionsNode';
+                                let lexicalCategorySubDiv = document.createElement('div');
+                                lexicalCategorySubDiv.className = 'lexicalCategorySubDiv';
+                                let lexicalCategoryP = document.createElement('p');
+                                lexicalCategoryP.className = 'lexicalCategoryP';
+                                lexicalCategoryP.textContent = elts.lexicalCategory.id;
+            
+                                // Still need to style lexicalCategory
+            
+                                lexicalCategorySubDiv.appendChild(lexicalCategoryP);
+                                //lexicalCategoryArr.push()
+                                // lexicalCategoryArr.push(lexicalCategoryP);
+                                console.log(elts);
+                                for (let eltz of elts.entries[0].senses) {
+                                    let definitionSpan = document.createElement('div');
+                                    definitionSpan.textContent = '-';
+                                    definitionSpan.className = 'definitionSpan';
+                                    //let definition = eltz.definitions[0];
+                                    let definition = document.createElement('span');
+                                    definition.className = 'definition';
+                                    let example = document.createElement('span');
+                                    definition.textContent = eltz.definitions[0];
+                                    // example.textContent = eltz.examples[0].text;
+                                    example.className = 'example';
+                                    let forwardSlashes = document.createElement('span');
+                                    forwardSlashes.className = 'forwardSlashes';
+                                    forwardSlashes.textContent = '//';
+                                    let exampleText = document.createElement('span');
+                                    if (eltz.examples) {
+                                        if (eltz.examples.length > 0) {
+                                            exampleText.textContent = eltz.examples[0].text;
+                                            exampleText.className = 'exampleText';
+                                            example.appendChild(forwardSlashes);
+                                            example.appendChild(exampleText);
+                                        }
+                                    }
+
+                                    let definitionNode = document.createElement('p');
+                                    console.log(definitionNode);
+                                    definitionNode.appendChild(definitionSpan);
+                                    definitionNode.appendChild(definition);
+                                    //definitionNode.appendChild(example);
+                                    // definitionNode.textContent = definition;
+                                    definitionNode.className = 'definitions';
+                                    definitionsNode.appendChild(definitionNode);
+                                    definitionsNode.appendChild(example);
+                                    definitions.push(definitionNode);
+                                }
+                                lexicalCategorySubDiv.appendChild(definitionsNode);
+                                lexicalCategoryDiv.appendChild(lexicalCategorySubDiv);
+                            }
+                        }
+                        console.log('executeExtension');
+                        // executeExtension(e);
+
+        
+                        // Then middle div container
+                        let middleNode = document.createElement('div');
+                            middleNode.className = 'middleNode';
+                            middleNode.appendChild(wordNode);
+                            middleNode.appendChild(lexicalCategoryDiv);
+        
+                            // Below is empty for some reason
+                            //middleNode.appendChild(definitionsNode);
+                            containerNode.appendChild(middleNode);
+                            // Not sure what this should contain yet
+                            // Word
+                            // lexicalCategory
+                            // Definitions
+                            // AND A LOOP for everyone
+        
+                        // Then footer container, potentially with an ad
+                        let footerNode = document.createElement('div');
+                        footerNode.className = 'footerNode';
+                        doPositioning(containerNode);
+                    } else {
+                        callAPI();
+                    }
+                });
+            } else {
+                callAPI();
+            }
+        } else {
+            callAPI();
+        }
+    });
+}
+function callAPI() {
+    console.log('couldn\'t find locally');
+    let dictionary_data = [];
+    let capturedWordsDataArr = [];
+    chrome.storage.local.get(['dictionary_data'], function(res) {
+        if (res.dictionary_data)
+            if (res.dictionary_data.length > 0) {
+                dictionary_data = res.dictionary_data;
+            }
+    });
+    chrome.storage.local.get(['dictionary_word_array'], function(res) {
+        if (res.dictionary_word_array)
+            if (res.dictionary_word_array.length > 0) {
+                capturedWordsDataArr = res.dictionary_word_array;
+            }
+    });
+    // Do seperates for if word not found or if it doens't exist at all yet the storage
+    console.log('word not found');
+    // Word not found, get local dictionary_data fetch from API then push into array
+    fullAPIURL = 'https://od-api.oxforddictionaries.com/api/v2' + '/lemmas/' + language + '/' + trimmedDownSelection;
+    console.log(fullAPIURL, trimmedDownSelection);
+    // Add below if checks maybe above so less unnecessary api calls
+    chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+        if (request.text === "API_Timeout") {
+            
+        }
+    }); 
+    chrome.runtime.sendMessage({text: 'API_CALL', url: fullAPIURL, word: trimmedDownSelection});
+    chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+        if (request.text === "API_RESPONSE" && !document.getElementById('defineIt-iconNode') && !document.getElementById('defineIt-popupNode')) {
+            let API_Word = JSON.parse(request.data).results[0].id;
+            console.log('passed checks');
+            console.log()
+            capturedWordsDataArr.push(API_Word);
+            console.log(capturedWordsDataArr, API_Word);
+            chrome.storage.local.set({dictionary_word_array: capturedWordsDataArr});
+            console.log(capturedWordsDataArr);
+            console.log('HAPPENING AFTER CLICK?');
+            let API_resp_data = JSON.parse(request.data).results;
+            dictionary_data.push(API_resp_data);
+            chrome.storage.local.set({dictionary_data: dictionary_data});
+            console.log(dictionary_data);
+            let id = API_resp_data.id;
+            let type = API_resp_data.type;
+            lexicalCategoryDiv = document.createElement('div');
+            lexicalCategoryDiv.className = 'lexicalCategoryDiv';
+            definitionsNode = document.createElement('div');
+            definitionsNode.className = 'definitionsNode';
+            // language = elt.language
+            // Det different lexicalCategories
+            for (let elt of API_resp_data) {
+                console.log(elt);
+                APIword = elt.word;
+                wordNode = document.createElement('p');
+                wordNode.textContent = APIword;
+                wordNode.className = 'wordNode';
+                console.log(wordNode);
+                console.log(APIword);
+                for (let elts of elt.lexicalEntries) {
+                    let definitionsNode = document.createElement('div');
+                    definitionsNode.className = 'definitionsNode';
+                    let lexicalCategorySubDiv = document.createElement('div');
+                    lexicalCategorySubDiv.className = 'lexicalCategorySubDiv';
+                    let lexicalCategoryP = document.createElement('p');
+                    lexicalCategoryP.className = 'lexicalCategoryP';
+                    lexicalCategoryP.textContent = elts.lexicalCategory.id;
+
+                    // Still need to style lexicalCategory
+
+                    lexicalCategorySubDiv.appendChild(lexicalCategoryP);
+                    //lexicalCategoryArr.push()
+                    // lexicalCategoryArr.push(lexicalCategoryP);
+                    console.log(elts);
+                    for (let eltz of elts.entries[0].senses) {
+                        let definitionSpan = document.createElement('div');
+                        definitionSpan.textContent = '-';
+                        definitionSpan.className = 'definitionSpan';
+                        //let definition = eltz.definitions[0];
+                        let definition = document.createElement('span');
+                        definition.className = 'definition';
+                        let example = document.createElement('span');
+                        definition.textContent = eltz.definitions[0];
+                        // example.textContent = eltz.examples[0].text;
+                        example.className = 'example';
+                        let forwardSlashes = document.createElement('span');
+                        forwardSlashes.className = 'forwardSlashes';
+                        forwardSlashes.textContent = '//';
+                        let exampleText = document.createElement('span');
+                        if (eltz.examples) {
+                            if (eltz.examples.length > 0) {
+                                exampleText.textContent = eltz.examples[0].text;
+                                exampleText.className = 'exampleText';
+                                example.appendChild(forwardSlashes);
+                                example.appendChild(exampleText);
+                            }
+                        }
+
+                        let definitionNode = document.createElement('p');
+                        console.log(definitionNode);
+                        definitionNode.appendChild(definitionSpan);
+                        definitionNode.appendChild(definition);
+                        //definitionNode.appendChild(example);
+                        // definitionNode.textContent = definition;
+                        definitionNode.className = 'definitions';
+                        definitionsNode.appendChild(definitionNode);
+                        definitionsNode.appendChild(example);
+                        definitions.push(definitionNode);
+                    }
+                    lexicalCategorySubDiv.appendChild(definitionsNode);
+                    lexicalCategoryDiv.appendChild(lexicalCategorySubDiv);
+                }
+                let containerNode = document.createElement('div');
+                containerNode.className = 'containerNode';
+                // SelectedWord Node, put the    header, middle, footer
+
+                // Then header div 
+                let headerNode = document.createElement('div');
+                    headerNode.className = 'headerNode';
+
+                    // with 1 img child 1 div rightside child
+                    // Rightside div could possibly be ad
+
+                    let imgNode = document.createElement('img');
+                    imgNode.className = 'imgNode';
+                    // !-- Change to local file
+                    imgNode.src = 'https://i.imgur.com/9JXSmyz.png';
+                    headerNode.appendChild(imgNode);
+
+                    let flexRightNode = document.createElement('div');
+                    flexRightNode.className = 'flexRightNode';
+                    headerNode.appendChild(flexRightNode);
+                    containerNode.appendChild(headerNode);
+
+                // Then middle div container
+                let middleNode = document.createElement('div');
+                    middleNode.className = 'middleNode';
+                    middleNode.appendChild(wordNode);
+                    middleNode.appendChild(lexicalCategoryDiv);
+
+                    // Below is empty for some reason
+                    //middleNode.appendChild(definitionsNode);
+                    containerNode.appendChild(middleNode);
+                    // Not sure what this should contain yet
+                    // Word
+                    // lexicalCategory
+                    // Definitions
+                    // AND A LOOP for everyone
+
+                // Then footer container, potentially with an ad
+                let footerNode = document.createElement('div');
+                    footerNode.className = 'footerNode';
+                doPositioning(containerNode);
+            }
+            
+        }
+    }); 
+    // executeExtension();
+}
 
 function popupIcon() {
     console.log('SHOUDLN\'T HAPPEN AFTER ICON CLICK', lexicalCategoryDiv);
@@ -77,6 +375,7 @@ function popupIcon() {
     var documentWidth = Math.max( body.scrollWidth, body.offsetWidth,
         html.clientWidth, html.scrollWidth, html.offsetWidth
          );
+
     console.log(boldPosition);
     let iconPopup = popupNode;
     iconPopup.id = 'defineIt-iconNode';
@@ -90,48 +389,6 @@ function popupIcon() {
     // !-- Old way that gets cropped --!
     // range.insertNode(iconPopup);
 
-    let containerNode = document.createElement('div');
-    containerNode.className = 'containerNode';
-    // SelectedWord Node, put the    header, middle, footer
-
-    // Then header div 
-    let headerNode = document.createElement('div');
-        headerNode.className = 'headerNode';
-
-        // with 1 img child 1 div rightside child
-        // Rightside div could possibly be ad
-
-        let imgNode = document.createElement('img');
-        imgNode.className = 'imgNode';
-        // !-- Change to local file
-        imgNode.src = 'https://i.imgur.com/9JXSmyz.png';
-        headerNode.appendChild(imgNode);
-
-        let flexRightNode = document.createElement('div');
-        flexRightNode.className = 'flexRightNode';
-        headerNode.appendChild(flexRightNode);
-        containerNode.appendChild(headerNode);
-
-    // Then middle div container
-    let middleNode = document.createElement('div');
-        console.log(wordNode);
-        middleNode.className = 'middleNode';
-        middleNode.appendChild(wordNode);
-        middleNode.appendChild(lexicalCategoryDiv);
-
-        // Below is empty for some reason
-        //middleNode.appendChild(definitionsNode);
-        containerNode.appendChild(middleNode);
-        // Not sure what this should contain yet
-        // Word
-        // lexicalCategory
-        // Definitions
-        // AND A LOOP for everyone
-
-    // Then footer container, potentially with an ad
-    let footerNode = document.createElement('div');
-        footerNode.className = 'footerNode';
-
         // !-- UNDO THIS LATER FOR ADS
 
     // containerNode.appendChild(footerNode);
@@ -139,7 +396,8 @@ function popupIcon() {
     document.getElementsByTagName('body')[0].insertBefore(iconPopup, document.getElementsByTagName('body')[0].firstChild);
     const showPopup = (e) => {
         console.log('DONT HAPPEN AFTER LOGO CLICK');
-        if (e.which === 1 && iconPopupExists === true) {
+        if (e.which === 1) {
+
             // !-- Remove if else later if I decide a single click outside popup should close with contextMenu open
             if (contextMenuExists === true) {
                 contextMenuExists = false;
@@ -169,17 +427,51 @@ function popupIcon() {
                         window.removeEventListener('mouseenter', iconPopup);
                         window.removeEventListener('mouseleave', iconPopup);
                         document.getElementById('defineIt-iconNode').remove();
-                        iconPopupExists = false;
                         window.removeEventListener('mousedown', showPopup, false);
                         let iconPopupPosition = iconPopup.getBoundingClientRect();
-                        iconPopup.style.left = (boldPosition.left - iconPopupPosition.left + 'px') + iconPopup.style.width;
+                        iconPopup.style.left = (boldPosition.left - iconPopupPosition.left + 'px') + iconPopup.offsetWidth;
                     } else {
                         window.removeEventListener('mouseenter', iconPopup);
                         window.removeEventListener('mouseleave', iconPopup);
                         window.removeEventListener('mousedown', showPopup, false);
                         document.getElementById('defineIt-iconNode').remove();
-                        iconPopupExists = false;
-                        doPositioning(containerNode);
+                        chrome.extension.sendRequest({cmd: "read_file"}, function(html){
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+                            console.log(doc);
+                            popupNode.id = 'defineIt-popupNode';
+                            popupNode.className = 'selectedWord';
+                        
+                            // !-- Old way that gets cropped --!
+                            // range.insertNode(popupNode);
+
+                            let containerNode = document.createElement('div');
+                            containerNode.className = 'containerNode';
+                            // SelectedWord Node, put the    header, middle, footer
+            
+                            // Then header div 
+                            let headerNode = document.createElement('div');
+                                headerNode.className = 'headerNode';
+            
+                                // with 1 img child 1 div rightside child
+                                // Rightside div could possibly be ad
+            
+                                let imgNode = document.createElement('img');
+                                imgNode.className = 'imgNode';
+                                // !-- Change to local file
+                                imgNode.src = 'https://i.imgur.com/9JXSmyz.png';
+                                headerNode.appendChild(imgNode);
+            
+                                let flexRightNode = document.createElement('div');
+                                flexRightNode.className = 'flexRightNode';
+                                headerNode.appendChild(flexRightNode);
+                                containerNode.appendChild(headerNode);
+                                
+
+                            document.getElementsByTagName('body')[0].insertBefore(popupNode, document.getElementsByTagName('body')[0].firstChild);
+                        });
+                        getLocal();
+                        // API
                     }
                 }
             }
@@ -192,28 +484,30 @@ function popupIcon() {
     let iconPopupLeftToRightStart = iconPopupPositionStart.x + iconPopupPositionStart.width;
     let iconPopupTopToBottomStart = iconPopupPositionStart.y + iconPopupPositionStart.height;
     iconPopup.style.left = (boldPosition.left) + span.offsetWidth + 'px';
-    // let overlapHeight = boldPosition.top - documentHeight + parseInt(iconPopup.style.height);
-    if ( (boldPosition.top - documentHeight + parseInt(iconPopup.style.height)) > -18) {
+    // let overlapHeight = boldPosition.top - documentHeight + parseInt(iconPopup.offsetHeight);
+    if ( (boldPosition.top - documentHeight + parseInt(iconPopup.offsetHeight)) > -18) {
         console.log('rearrange trigger top');
         // Trigger from top
-        iconPopup.style.top = boldPosition.top - parseInt(iconPopup.style.height) + 15 - 50 - span.offsetHeight + 'px';
+        iconPopup.style.top = boldPosition.top - parseInt(iconPopup.offsetHeight) + 15 - 50 - span.offsetHeight + 'px';
     } else {
         console.log('rearrange dunno bot?');
         iconPopup.style.top = boldPosition.top + 'px';
     }
     overlapWidth = documentWidth - iconPopup.getBoundingClientRect().x;
     let rangeNode = rangeWindow.startOffset;
-    if ( overlapWidth < parseInt(iconPopup.style.width)+26 ) {
+    console.log(overlapWidth, iconPopup.style.left, iconPopup.offsetWidth, 'rearrange width');
+    if ( overlapWidth < parseInt(iconPopup.offsetWidth)+26 ) {
         console.log('rearrange width');
         if (document.getElementById('defineIt-iconNode')) {
             console.log('rearrange width2');
-            iconPopup.style.left = parseInt(iconPopup.style.left) - (parseInt(iconPopup.style.width)+26 - overlapWidth) + 'px';
+            iconPopup.style.left = parseInt(iconPopup.style.left) - (parseInt(iconPopup.offsetWidth)+26 - overlapWidth) + 'px';
         }
     }
     window.addEventListener('mousedown', showPopup, false);
 }
 
 function doPositioning(popupNode) {
+    console.log('helloooooooooooooooooooooooo POPUPNODE');
     if (document.getElementById('defineIt-iconNode')) {
         document.getElementById('defineIt-iconNode').remove();
     }
@@ -226,11 +520,7 @@ function doPositioning(popupNode) {
     var documentWidth = Math.max( body.scrollWidth, body.offsetWidth,
         html.clientWidth, html.scrollWidth, html.offsetWidth
          );
-    popupNode.id = 'defineIt-popupNode';
-    popupNode.className = 'selectedWord';
-    // !-- Old way that gets cropped --!
-    // range.insertNode(popupNode);
-    document.getElementsByTagName('body')[0].insertBefore(popupNode, document.getElementsByTagName('body')[0].firstChild);
+
     // !-- Scratch the resizer for now
 /*     var ro = new ResizeObserver( entries => {
         for (let entry of entries) {
@@ -272,12 +562,13 @@ function doPositioning(popupNode) {
                     var coor = "X coords: " + x + ", Y coords: " + y;
                     if ( ( x < (popupNodePositions.x) || x > popupNodeLeftToRight ) || y < (popupNodePositions.y) || y > popupNodeTopToBottom ) {
                         console.log('SHOULD BE OUTSIDE Popup');
+                        console.log('SHOULD BE OUTSIDE Icon', x, y, popupNodePositions, popupNodeLeftToRight, popupNodeTopToBottom);
                         // range.startContainer.childNodes[rangeNode].remove();
                         $(span).contents().unwrap();
                         document.getElementById('defineIt-popupNode').remove();
                         window.removeEventListener('mousedown', showPopup, false);
                         let popupNodePosition = popupNode.getBoundingClientRect();
-                        popupNode.style.left = (boldPosition.left - popupNodePosition.left + 'px') + popupNode.style.width;
+                        popupNode.style.left = (boldPosition.left - popupNodePosition.left + 'px') + popupNode.offsetWidth;
                     }
                 }
             }
@@ -292,19 +583,19 @@ function doPositioning(popupNode) {
     let popupNodeLeftToRightStart = popupNodePositionStart.x + popupNodePositionStart.width;
     let popupNodeTopToBottomStart = popupNodePositionStart.y + popupNodePositionStart.height;
     popupNode.style.left = (boldPosition.left) + span.offsetWidth + 'px';
-    // let overlapHeight = boldPosition.top - documentHeight + parseInt(popupNode.style.height);
-    if ( (boldPosition.top - documentHeight + parseInt(popupNode.style.height)) > -18) {
+    // let overlapHeight = boldPosition.top - documentHeight + parseInt(popupNode.offsetHeight);
+    if ( (boldPosition.top - documentHeight + popupNode.offsetHeight) > -18) {
         // Trigger from top
-        popupNode.style.top = boldPosition.top - parseInt(popupNode.style.height) + 15 - 50 - span.offsetHeight + 'px';
+        popupNode.style.top = boldPosition.top - popupNode.offsetHeight + 15 - 50 - span.offsetHeight + 'px';
     } else {
         popupNode.style.top = boldPosition.top + 'px';
     }
     overlapWidth = documentWidth - popupNode.getBoundingClientRect().x;
     let rangeNode = rangeWindow.startOffset;
-    if ( overlapWidth < parseInt(popupNode.style.width)+26 ) {
-        if (document.getElementById('defineIt-popupNode')) {
-            popupNode.style.left = parseInt(popupNode.style.left) - (parseInt(popupNode.style.width)+26 - overlapWidth) + 'px';
-        }
+    console.log(overlapWidth, popupNode.style.left, popupNode.offsetWidth, 'rearrange width');
+    if ( overlapWidth < parseInt(popupNode.offsetWidth)+26 ) {
+        console.log('rearrange width2');
+        popupNode.style.left = parseInt(popupNode.style.left) - (popupNode.offsetWidth+26 - overlapWidth) + 'px';
     }
     window.addEventListener('mousedown', showPopup, false);
 }
@@ -539,238 +830,15 @@ const windowMouseUp = (e) => {
             // API Call, check return if valid word
             // !-- Check if we should call api
             console.log('check');
-            let trimmedDownSelection = window.getSelection().toString().trim().toLowerCase();
+            trimmedDownSelection = window.getSelection().toString().trim().toLowerCase();
+            executeExtension(e);
 
             // Array structure
             // Find out if words are captured as lowercase/uppercase or inconsistently depending on the selected word, force it lowercase if not done by default
             // if capturedWordsData.indexOf(trimmedDownSelection) !== -1 { // Fetch word from here rather than API }c
             // If not found save it to local, otherwise fetch it from local, use the api request to save it then fetch it from there
-
-            chrome.storage.local.get(['dictionary_word_array'], function(res) {
-                if (res.dictionary_word_array) {
-                    let dictionary_data = [];
-                    console.log('dictionary_word_array exists', res.dictionary_word_array);
-                    let capturedWordsDataArr = res.dictionary_word_array;
-                    let dictionaryWordExists = res.dictionary_word_array;
-                    let wordFoundInDictionaryArrIndex = res.dictionary_word_array.indexOf(trimmedDownSelection) !== -1;
-                    if (wordFoundInDictionaryArrIndex === true) {
-                        console.log('word found from local');
-                        let wordIndex = res.dictionary_word_array.indexOf(trimmedDownSelection);
-                        console.log(res.dictionary_word_array);
-                        // Word found, fetch from local data
-                        chrome.storage.local.get(['dictionary_data'], function(res) {
-                            if (res.dictionary_data) {
-                                //dictionary_data = res.dictionary_data ? res.dictionary_data : [];
-                                dictionary_data = res.dictionary_data;
-                                console.log(dictionary_data);
-                                console.log(wordIndex);
-                                console.log(capturedWordsDataArr);
-                                console.log(dictionaryWordExists);
-                                 console.log('HAPPENING AFTER CLICK?');
-                                // let API_resp_data = JSON.parse(request.data).results;
-                                let API_resp_data = dictionary_data[wordIndex];
-                                console.log(API_resp_data);
-    /*                             dictionary_data.push(API_resp_data);
-                                chrome.storage.local.set({dictionary_data: dictionary_data}); */
-                                let id = API_resp_data.id;
-                                let type = API_resp_data.type;
-                                lexicalCategoryDiv = document.createElement('div');
-                                lexicalCategoryDiv.className = 'lexicalCategoryDiv';
-                                definitionsNode = document.createElement('div');
-                                definitionsNode.className = 'definitionsNode';
-                                // language = elt.language
-                                // Det different lexicalCategories
-                                console.log('HELLOOOOOOOOOO');
-                                for (let elt of API_resp_data) {
-                                    console.log(elt);
-                                    APIword = elt.word;
-                                    wordNode = document.createElement('p');
-                                    wordNode.textContent = APIword;
-                                    wordNode.className = 'wordNode';
-                    
-                                    console.log(APIword);
-                                    for (let elts of elt.lexicalEntries) {
-                                        let definitionsNode = document.createElement('div');
-                                        definitionsNode.className = 'definitionsNode';
-                                        let lexicalCategorySubDiv = document.createElement('div');
-                                        lexicalCategorySubDiv.className = 'lexicalCategorySubDiv';
-                                        let lexicalCategoryP = document.createElement('p');
-                                        lexicalCategoryP.className = 'lexicalCategoryP';
-                                        lexicalCategoryP.textContent = elts.lexicalCategory.id;
-                    
-                                        // Still need to style lexicalCategory
-                    
-                                        lexicalCategorySubDiv.appendChild(lexicalCategoryP);
-                                        //lexicalCategoryArr.push()
-                                        // lexicalCategoryArr.push(lexicalCategoryP);
-                                        for (let eltz of elts.entries[0].senses) {
-                                            let definitionSpan = document.createElement('div');
-                                            definitionSpan.textContent = '-';
-                                            definitionSpan.className = 'definitionSpan';
-                                            //let definition = eltz.definitions[0];
-                                            let definition = document.createElement('span');
-                                            definition.className = 'definition';
-                                            let example = document.createElement('span');
-                                            definition.textContent = eltz.definitions[0];
-                                            // example.textContent = eltz.examples[0].text;
-                                            example.className = 'example';
-                                            let forwardSlashes = document.createElement('span');
-                                            forwardSlashes.className = 'forwardSlashes';
-                                            forwardSlashes.textContent = '//';
-                                            let exampleText = document.createElement('span');
-                                            if (eltz.examples) {
-                                                if (eltz.examples.length > 0) {
-                                                    exampleText.textContent = eltz.examples[0].text;
-                                                    exampleText.className = 'exampleText';
-                                                    example.appendChild(forwardSlashes);
-                                                    example.appendChild(exampleText);
-                                                }
-                                            }
-        
-                                            let definitionNode = document.createElement('p');
-                                            console.log(definitionNode);
-                                            definitionNode.appendChild(definitionSpan);
-                                            definitionNode.appendChild(definition);
-                                            //definitionNode.appendChild(example);
-                                            // definitionNode.textContent = definition;
-                                            definitionNode.className = 'definitions';
-                                            definitionsNode.appendChild(definitionNode);
-                                            definitionsNode.appendChild(example);
-                                            definitions.push(definitionNode);
-                                        }
-                                        lexicalCategorySubDiv.appendChild(definitionsNode);
-                                        lexicalCategoryDiv.appendChild(lexicalCategorySubDiv);
-                                    }
-                                }
-                                iconPopupExists = true;
-                                console.log('executeExtension');
-                                executeExtension(e);
-                            } else {
-                                callAPI();
-                            }
-                        });
-                    } else {
-                        callAPI();
-                    }
-                } else {
-                    callAPI();
-                }
-            });
-            function callAPI() {
-                console.log('couldn\'t find locally');
-                let dictionary_data = [];
-                let capturedWordsDataArr = [];
-                chrome.storage.local.get(['dictionary_data'], function(res) {
-                    if (res.dictionary_data)
-                        if (res.dictionary_data.length > 0) {
-                            dictionary_data = res.dictionary_data;
-                        }
-                });
-                chrome.storage.local.get(['dictionary_word_array'], function(res) {
-                    if (res.dictionary_word_array)
-                        if (res.dictionary_word_array.length > 0) {
-                            capturedWordsDataArr = res.dictionary_word_array;
-                        }
-                });
-                // Do seperates for if word not found or if it doens't exist at all yet the storage
-                console.log('word not found');
-                // Word not found, get local dictionary_data fetch from API then push into array
-                fullAPIURL = 'https://od-api.oxforddictionaries.com/api/v2' + '/lemmas/' + language + '/' + trimmedDownSelection;
-                console.log(fullAPIURL, trimmedDownSelection);
-                // Add below if checks maybe above so less unnecessary api calls
-                chrome.runtime.sendMessage({text: 'API_CALL', url: fullAPIURL, word: trimmedDownSelection});
-                chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-                    if (request.text === "API_RESPONSE" && !document.getElementById('defineIt-iconNode') && !document.getElementById('defineIt-popupNode')) {
-                        let API_Word = JSON.parse(request.data).results[0].id;
-                        console.log('passed checks');
-                        console.log()
-                        capturedWordsDataArr.push(API_Word);
-                        console.log(capturedWordsDataArr, API_Word);
-                        chrome.storage.local.set({dictionary_word_array: capturedWordsDataArr});
-                        console.log(capturedWordsDataArr);
-                        console.log('HAPPENING AFTER CLICK?');
-                        let API_resp_data = JSON.parse(request.data).results;
-                        dictionary_data.push(API_resp_data);
-                        chrome.storage.local.set({dictionary_data: dictionary_data});
-                        console.log(dictionary_data);
-                        let id = API_resp_data.id;
-                        let type = API_resp_data.type;
-                        lexicalCategoryDiv = document.createElement('div');
-                        lexicalCategoryDiv.className = 'lexicalCategoryDiv';
-                        definitionsNode = document.createElement('div');
-                        definitionsNode.className = 'definitionsNode';
-                        // language = elt.language
-                        // Det different lexicalCategories
-                        for (let elt of API_resp_data) {
-                            console.log(elt);
-                            APIword = elt.word;
-                            wordNode = document.createElement('p');
-                            wordNode.textContent = APIword;
-                            wordNode.className = 'wordNode';
-                            console.log(wordNode);
-                            console.log(APIword);
-                            for (let elts of elt.lexicalEntries) {
-                                let definitionsNode = document.createElement('div');
-                                definitionsNode.className = 'definitionsNode';
-                                let lexicalCategorySubDiv = document.createElement('div');
-                                lexicalCategorySubDiv.className = 'lexicalCategorySubDiv';
-                                let lexicalCategoryP = document.createElement('p');
-                                lexicalCategoryP.className = 'lexicalCategoryP';
-                                lexicalCategoryP.textContent = elts.lexicalCategory.id;
-            
-                                // Still need to style lexicalCategory
-            
-                                lexicalCategorySubDiv.appendChild(lexicalCategoryP);
-                                //lexicalCategoryArr.push()
-                                // lexicalCategoryArr.push(lexicalCategoryP);
-                                for (let eltz of elts.entries[0].senses) {
-                                    let definitionSpan = document.createElement('div');
-                                    definitionSpan.textContent = '-';
-                                    definitionSpan.className = 'definitionSpan';
-                                    //let definition = eltz.definitions[0];
-                                    let definition = document.createElement('span');
-                                    definition.className = 'definition';
-                                    let example = document.createElement('span');
-                                    definition.textContent = eltz.definitions[0];
-                                    // example.textContent = eltz.examples[0].text;
-                                    example.className = 'example';
-                                    let forwardSlashes = document.createElement('span');
-                                    forwardSlashes.className = 'forwardSlashes';
-                                    forwardSlashes.textContent = '//';
-                                    let exampleText = document.createElement('span');
-                                    if (eltz.examples) {
-                                        if (eltz.examples.length > 0) {
-                                            exampleText.textContent = eltz.examples[0].text;
-                                            exampleText.className = 'exampleText';
-                                            example.appendChild(forwardSlashes);
-                                            example.appendChild(exampleText);
-                                        }
-                                    }
-
-                                    let definitionNode = document.createElement('p');
-                                    console.log(definitionNode);
-                                    definitionNode.appendChild(definitionSpan);
-                                    definitionNode.appendChild(definition);
-                                    //definitionNode.appendChild(example);
-                                    // definitionNode.textContent = definition;
-                                    definitionNode.className = 'definitions';
-                                    definitionsNode.appendChild(definitionNode);
-                                    definitionsNode.appendChild(example);
-                                    definitions.push(definitionNode);
-                                }
-                                lexicalCategorySubDiv.appendChild(definitionsNode);
-                                lexicalCategoryDiv.appendChild(lexicalCategorySubDiv);
-                            }
-                            executeExtension(e);
-                        }
-                        iconPopupExists = true;
-                        
-                    }
-                }); 
-                // executeExtension();
-            }
             // chrome.runtime.sendMessage({text: 'API_EXISTS', url: fullAPIURL, word: text});
-            //https://od-api.oxforddictionaries.com/api/v2/lemmas/en/ace
+            // https://od-api.oxforddictionaries.com/api/v2/lemmas/en/ace
         }
     }
     window.removeEventListener('mouseup', windowMouseUp, false);
@@ -786,11 +854,14 @@ const mouseDownClickAway = () => {
             
         } */
         dontcall = false;
+        console.log('CALLLLLLLLLLLLLLLLL');
         // Do checks on mouseup, then executeExtensions
         //window.removeEventListener('mousedown', mouseDownClickAway, false);
+        // Do Icon thingy, then if click api
         window.addEventListener('mouseup', windowMouseUp, false);
     }
 }
+
 
 chrome.storage.local.get(['blacklistedURLS'], function(res) {
 

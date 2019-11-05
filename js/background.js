@@ -6,6 +6,8 @@ console.log('background active');
 var manifest = chrome.runtime.getManifest();
 console.log(manifest.content_scripts[0].exclude_matches);
 
+let count = 0;
+
 /* chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
         if (request.text === 'resizePopup') {
@@ -55,8 +57,17 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
       if (request.text === "API_CALL") {
+        if (count <= 5) {
+
+        } else {
+            chrome.tabs.sendMessage(timeout, {text: 'API_Timeout', duration: 60});
+            setTimeout(() => {
+                count = 0;
+            }, 60000);
+        }
         console.log('api call');
         var url = request.url;
+        count+=1;
 /*         chrome.storage.local.get(['API_CREDENTIALS'], function(result) {
             console.log(result);
             if (!result.API_CREDENTIALS) {
@@ -83,6 +94,9 @@ chrome.runtime.onMessage.addListener(
             if (text) {
                 let parsedText = JSON.parse(text);
                 let word = parsedText.results[0].lexicalEntries[0].inflectionOf[0].text;
+                if (word.toLowerCase() === 'was') {
+                    word = 'be';
+                }
                 let language = 'en-gb';
                 // !-- Add examples to fields, put it in each lexicalCategory
                 fetch('https://od-api.oxforddictionaries.com/api/v2' + '/entries/' + language + '/' + word + '?fields=definitions,examples&strictMatch=false', {
@@ -105,6 +119,24 @@ chrome.runtime.onMessage.addListener(
       }
     }
 );
+
+// Send spinner.html to content.js on request
+
+chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+    if(request.cmd == "read_file") {
+        console.log('readFile');
+        let url = chrome.extension.getURL("html/spinner.html");
+        fetch(url, {
+            headers: {
+                dataType: 'html',
+                'Content-Type': 'text/html'
+            }
+        }).then(response => response.text())
+        .then((html) => {
+            sendResponse({html: html});
+        });
+    }
+});
 
 // Set chrome.local api keys
 /* chrome.storage.local.get(['API_CREDENTIALS'], function(result) {
