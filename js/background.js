@@ -57,14 +57,16 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
       if (request.text === "API_CALL") {
-        if (count <= 5) {
+          // !-- Use lemmas to check if valid word, only then show icon, sell word data to companies to counteract api costs, then if clicked do second call
+          // !-- and show popup, find a way to monetize that as well.
+/*         if (count <= 5) {
 
         } else {
             chrome.tabs.sendMessage(timeout, {text: 'API_Timeout', duration: 60});
             setTimeout(() => {
                 count = 0;
             }, 60000);
-        }
+        } */
         console.log('api call');
         var url = request.url;
         count+=1;

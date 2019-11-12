@@ -52,7 +52,9 @@
 }
 .popupIcon:hover {
 	cursor: pointer;
+	opacity: 1;
 }
+
 table .sistemas:hover {
 	background: #1E1F26;
   }

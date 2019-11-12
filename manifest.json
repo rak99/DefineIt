@@ -22,6 +22,12 @@
         "default_title": "Live Alert",
         "default_popup": "./html/popup.html"
     },
+    "web_accessible_resources": [
+        "wordsarray.json",
+        "html/spinner.html",
+        "html/definitionPopup.html",
+        "html/iconPopup.html"
+    ],
     "permissions": [
         "file://*/*",
         "tabs",
