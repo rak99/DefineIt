@@ -39,7 +39,7 @@ async function callAPI(word, popupNode) {
             wordNode.textContent = word;
             for (let elt of API_resp_data) {
                 APIword = elt.word;
-
+                console.log(elt);
                 for (let elts of elt.lexicalEntries) {
                     let definitionsNode = document.createElement('div');
                     definitionsNode.className = 'definitionsNode';
@@ -50,45 +50,71 @@ async function callAPI(word, popupNode) {
                     lexicalCategoryP.textContent = elts.lexicalCategory.id;
 
                     lexicalCategorySubDiv.appendChild(lexicalCategoryP);
-                    for (let eltz of elts.entries[0].senses) {
-                        let definitionSpan = document.createElement('div');
-                        definitionSpan.textContent = '-';
-                        definitionSpan.className = 'definitionSpan';
-                        //let definition = eltz.definitions[0];
-                        let definition = document.createElement('span');
-                        definition.className = 'definition';
-                        let example = document.createElement('span');
-                        definition.textContent = eltz.definitions[0];
-                        // example.textContent = eltz.examples[0].text;
-                        example.className = 'example';
-                        let forwardSlashes = document.createElement('span');
-                        forwardSlashes.className = 'forwardSlashes';
-                        forwardSlashes.textContent = '//';
-                        let exampleText = document.createElement('span');
-                        if (eltz.examples) {
-                            if (eltz.examples.length > 0) {
-                                exampleText.textContent = eltz.examples[0].text;
-                                exampleText.className = 'exampleText';
-                                example.appendChild(forwardSlashes);
-                                example.appendChild(exampleText);
-                            }
-                        }
+                    if (elts.entries) {
+                        if (elts.entries[0].senses) {
+                            for (let eltz of elts.entries[0].senses) {
+                                let definitionSpan = document.createElement('div');
+                                definitionSpan.textContent = '-';
+                                definitionSpan.className = 'definitionSpan';
+                                //let definition = eltz.definitions[0];
+                                let definition = document.createElement('span');
+                                definition.className = 'definition';
+                                let example = document.createElement('span');
 
-                        let definitionNode = document.createElement('p');
-                        definitionNode.appendChild(definitionSpan);
-                        definitionNode.appendChild(definition);
-                        definitionNode.className = 'definitions';
-                        definitionsNode.appendChild(definitionNode);
-                        definitionsNode.appendChild(example);
-                        definitions.push(definitionNode);
+                                example.className = 'example';
+                                let forwardSlashes = document.createElement('span');
+                                forwardSlashes.className = 'forwardSlashes';
+                                forwardSlashes.textContent = '//';
+                                let exampleText = document.createElement('span');
+                                // !-- Maybe don't do this as an else but 2 if's
+                                if (eltz.definitions) {
+                                    definition.textContent = eltz.definitions[0];
+                                } else if (eltz.subsenses) {
+                                    definition.textContent = eltz.subsenses[0].definitions[0];
+                                    if (eltz.subsenses[0].examples) {
+                                        // !-- Maybe do a loop for this
+                                        exampleText.textContent = eltz.subsenses[0].examples[0].text;
+                                        exampleText.className = 'exampleText';
+                                        example.appendChild(forwardSlashes);
+                                        example.appendChild(exampleText);
+                                    }
+                                }
+                                if (eltz.examples) {
+                                    if (eltz.examples.length > 0) {
+                                        exampleText.textContent = eltz.examples[0].text;
+                                        exampleText.className = 'exampleText';
+                                        example.appendChild(forwardSlashes);
+                                        example.appendChild(exampleText);
+                                    }
+                                }
+                                // example.textContent = eltz.examples[0].text;
+        
+                                let definitionNode = document.createElement('p');
+                                definitionNode.appendChild(definitionSpan);
+                                definitionNode.appendChild(definition);
+                                definitionNode.className = 'definitions';
+                                definitionsNode.appendChild(definitionNode);
+                                definitionsNode.appendChild(example);
+                                definitions.push(definitionNode);
+                            }
+                            lexicalCategorySubDiv.appendChild(definitionsNode);
+                            lexicalCategoryDiv.appendChild(lexicalCategorySubDiv);
+                        } else {
+                            let errorDefinitionsNode = document.createElement('div');
+                                errorDefinitionsNode.className = 'definitionsNode';
+                                errorDefinitionsNode.textContent = 'Something must\'e gone wrong, we couldn\'t find this word in our dictionary';
+    
+                            lexicalCategorySubDiv.appendChild(errorDefinitionsNode);
+                            lexicalCategoryDiv.appendChild(lexicalCategorySubDiv);
+                        }
                     }
-                    lexicalCategorySubDiv.appendChild(definitionsNode);
-                    lexicalCategoryDiv.appendChild(lexicalCategorySubDiv);
                 }
                 // Then middle div container
                 // let middleNode = popupNode.getElementById('defineIt-middleNode');
+                if (popupNode.querySelectorAll('#defineIt-loading')[0]) {
                     popupNode.querySelectorAll('#defineIt-loading')[0].remove();
-
+                }
+                
                 let footerNode = document.createElement('div');
                     footerNode.className = 'footerNode';
             }
@@ -263,14 +289,15 @@ function popupIcon(node, word, boldPosition) {
             // !-- Above fixed what bottom may be able to but better, not sure yet
             // !-- document.getElementById('DefineItTextToBold').setAttribute('contenteditable',true);
             if ( ( x < (iconPopupPositions.x) || x > iconPopupLeftToRight ) || y < (iconPopupPositions.y) || y > iconPopupTopToBottom ) {
+                window.removeEventListener('click', showPopup, false);
                 console.log('SHOULD BE OUTSIDE Icon', x, y, iconPopupPositions, iconPopupLeftToRight, iconPopupTopToBottom);
-                $(span).contents().unwrap();
-                let iconPopupPosition = iconPopup.getBoundingClientRect();
-                iconPopup.style.left = (boldPosition.left - iconPopupPosition.left + 'px') + iconPopup.offsetWidth;
+                iconPopup.style.left = (boldPosition.left - iconPopupPositions.left + 'px') + iconPopup.offsetWidth;
                 // Popup should be removed, add mouseup listener back
                 // Do this on node one as well if clicked outside
                 window.addEventListener('mouseup', checkWordsInMouseUp, false);
             } else {
+                window.removeEventListener('click', showPopup, false);
+                window.addEventListener('click', showPopupDefinition, false);
                 // Get popupNode and append loading screen to it, then remove it after dictionary is processed
                 let popupNode = await fetchHTMLResource('../html/definitionPopup.html');
                 let popupNodeBody = popupNode.getElementById('defineIt-popupNode');
@@ -286,11 +313,37 @@ function popupIcon(node, word, boldPosition) {
                 // Do loading screen
                 fetchPopupData(word, popupNodeBody);
             }
+            console.log('clicked e.which = 1');
         } else {
             //contextMenuExists = false;
         }
-        window.removeEventListener('click', showPopup, false);
     };
+
+    const showPopupDefinition = async (e) => {
+        if (e.which === 1) {
+            let popupNode = document.getElementById('defineIt-popupNode');
+            let popupNodePositions = popupNode.getBoundingClientRect();
+            let popupNodeLeftToRight = popupNodePositions.x + popupNodePositions.width;
+            let popupNodeTopToBottom = popupNodePositions.y + popupNodePositions.height;
+            var x = event.clientX; // Get the horizontal coordinate
+            var y = event.clientY; // Get the vertical coordinate
+
+            // !-- Above fixed what bottom may be able to but better, not sure yet
+            // !-- document.getElementById('DefineItTextToBold').setAttribute('contenteditable',true);
+            if ( ( x < (popupNodePositions.x) || x > popupNodeLeftToRight ) || y < (popupNodePositions.y) || y > popupNodeTopToBottom ) {
+                document.getElementById('defineIt-popupNode').remove();
+                window.removeEventListener('click', showPopupDefinition, false);
+                console.log('SHOULD BE OUTSIDE Icon', x, y, popupNodePositions, popupNodeLeftToRight, popupNodeTopToBottom);
+                popupNode.style.left = (boldPosition.left - popupNodePositions.left + 'px') + popupNode.offsetWidth;
+                // Popup should be removed, add mouseup listener back
+                // Do this on node one as well if clicked outside
+                window.addEventListener('mouseup', checkWordsInMouseUp, false);
+            }
+        } else {
+            //contextMenuExists = false;
+        }
+    };
+
     window.addEventListener('click', showPopup, false);
 }
 
@@ -339,7 +392,7 @@ function fetchWordResource(file, word) {
 
     fetch(url)
         .then((response) => fileType === 'json' ? response.json() : response.text()) //assuming file contains json
-        .then((json) => checkIfWord(json, word));
+        .then((json) => checkIfWord(json, word.toLowerCase()));
         
 }
 
