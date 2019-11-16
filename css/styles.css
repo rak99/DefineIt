@@ -113,6 +113,7 @@ table .sistemas:hover {
     height: 100%;
 }
 .middleNode {
+
 	background-color: #201f22;
     border: 2px solid #3A3A3D;
 }
@@ -174,14 +175,14 @@ table .sistemas:hover {
 
 .spinner {
 	margin: 100px auto 0;
-	width: 70px;
+	width: 97px;
 	text-align: center;
   }
   
   .spinner > div {
-	width: 18px;
-	height: 18px;
-	background-color: #333;
+	width: 25px;
+	height: 25px;
+	background-color: rgb(255, 255, 255);
   
 	border-radius: 100%;
 	display: inline-block;
@@ -213,3 +214,19 @@ table .sistemas:hover {
 	  transform: scale(1.0);
 	}
   }
+
+::-webkit-scrollbar {
+width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+box-shadow: inset 0 0 5px grey;
+border-radius: 5px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+background: rgb(46, 44, 44);
+border-radius: 5px;
+}
