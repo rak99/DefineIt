@@ -1,11 +1,16 @@
-function callAPI(word, popupNode) {
+async function callAPI(word, popupNode) {
+    let dictionaryObject = await checkLocalDictionary(word);
     let language = 'en';
     let definitions = [];
     console.log('couldn\'t find locally');
-    let dictionary_data = [];
-    let capturedWordsDataArr = [];
+    let dictionary_definitions = [];
+    let dictionary_words = [];
+    if (dictionaryObject.dictionaryDefinitions) {
+        dictionary_definitions = dictionaryObject.dictionaryDefinitions;
+        dictionary_words = dictionaryObject.dictionaryWords;
+    }
     fullAPIURL = 'https://od-api.oxforddictionaries.com/api/v2' + '/lemmas/' + language + '/' + word;
-    // Add below if checks maybe above so less unnecessary api calls
+    // Add below if checks maybe bove so less unnecessary api calls
     chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         if (request.text === "API_Timeout") {
             
@@ -16,11 +21,11 @@ function callAPI(word, popupNode) {
         if (request.text === "API_RESPONSE") {
 
             let API_Word = JSON.parse(request.data).results[0].id;
-            capturedWordsDataArr.push(API_Word);
-            chrome.storage.local.set({dictionary_word_array: capturedWordsDataArr});
+            dictionary_words.push(API_Word);
+            chrome.storage.local.set({dictionary_word_array: dictionary_words});
             let API_resp_data = JSON.parse(request.data).results;
-            dictionary_data.push(API_resp_data);
-            chrome.storage.local.set({dictionary_data: dictionary_data});
+            dictionary_definitions.push(API_resp_data);
+            chrome.storage.local.set({dictionary_data: dictionary_definitions});
             let id = API_resp_data.id;
             let type = API_resp_data.type;
             let lexicalCategoryDiv = popupNode.querySelectorAll('#defineIt-lexicalCategoryDiv')[0];
@@ -100,7 +105,7 @@ async function fetchPopupData(word, popupNode) {
     let dictionary_data = [];
 
     
-    if (wordFoundInLocalDictionary.dictionaryDefinitions !== undefined) {
+    if (wordFoundInLocalDictionary.wordIndex !== undefined) {
         // Word found, don't call API 
         
         let dictionaryWord = wordFoundInLocalDictionary.dictionaryWords;
@@ -181,20 +186,28 @@ async function fetchPopupData(word, popupNode) {
 async function checkLocalDictionary(popupNode, word) {
     let dictionaryObject = {};
     chrome.storage.local.get(['dictionary_word_array'], function(res) {
+        console.log(res);
         if (res.dictionary_word_array) {
             let wordFoundInDictionaryArrIndex = res.dictionary_word_array.indexOf(word) !== -1;
             console.log(res, wordFoundInDictionaryArrIndex);
             if (wordFoundInDictionaryArrIndex === true) {
                 let wordIndex = res.dictionary_word_array.indexOf(word);
                 chrome.storage.local.get(['dictionary_data'], function(res) {
+                    console.log(res);
                     if (res.dictionary_data) {
                         dictionaryObject = {
                             dictionaryDefinitions: res.dictionary_data,
                             dictionaryWords: res.dictionary_word_array,
                             wordIndex: wordIndex
                         };
+                        console.log(dictionaryObject);
                     }
                 });
+            } else {
+                dictionaryObject = {
+                    dictionaryDefinitions: res.dictionary_data,
+                    dictionaryWords: res.dictionary_word_array,
+                }
             }
         }
     });
