@@ -1,9 +1,9 @@
 console.log('popup active');
 let currentURL = '';
-let blacklists = '';
+l//et blacklists = '';
 
 chrome.storage.local.get(['blacklistedURLS'], function(res) {
-    console.log('Currently blacklisted URLS are', res);
+    //console.log('Currently blacklisted URLS are', res);
     if (res.blacklistedURLS) {
         blacklists = res.blacklistedURLS;
     } else {
@@ -16,10 +16,10 @@ chrome.storage.local.get(['blacklistedURLS'], function(res) {
 // !-- Consider using .setPopup rather than all this muckery
 
 chrome.storage.local.get(['currentURL'], function(result) {
-    console.log('Value currently is ' + JSON.stringify(result));
+    //console.log('Value currently is ' + JSON.stringify(result));
     if (result.currentURL.url.indexOf('chrome://extensions/') === -1) {
         currentURL = result;
-        console.log(currentURL.currentURL.url);
+        //console.log(currentURL.currentURL.url);
 
         if (document.getElementById('defineItBody')) {
             document.getElementById('defineItBody').addEventListener('contextmenu', function(e) {
@@ -59,7 +59,7 @@ chrome.storage.local.get(['currentURL'], function(result) {
             document.getElementById('defineIt-container-id').style.display = 'none';
             document.getElementById('refreshIconContainer').style.display = 'flex';
             document.getElementById('refreshButtonID').addEventListener('click', function() {
-                console.log('clicked');
+                //console.log('clicked');
                 chrome.runtime.sendMessage({text: 'refreshContent'});
                 window.close();
             });
@@ -67,7 +67,7 @@ chrome.storage.local.get(['currentURL'], function(result) {
     
         let isDomainBlacklisted = checkIfCurrentURLIsBlacklisted(hostnameUrl);
         let isPageBlacklisted = checkIfCurrentURLIsBlacklisted(url);
-        console.log('Page' + isPageBlacklisted, 'Domain' + isDomainBlacklisted);
+        //console.log('Page' + isPageBlacklisted, 'Domain' + isDomainBlacklisted);
 
         function sliceAndConcatArray(arr, indexOfItemToBeRemoved) {
             // Give 2 arrays that you want to remove items from and return the removed array
@@ -83,7 +83,7 @@ chrome.storage.local.get(['currentURL'], function(result) {
         };
     
         if (isDomainBlacklisted === true || isPageBlacklisted === true) {
-            console.log(hostnameUrl, url);
+            //console.log(hostnameUrl, url);
             // URL or domain is blacklisted
             // Do Un-Blacklist related things here
             // Change text as well, maybe 'Un-Blacklist This Page'
@@ -95,22 +95,22 @@ chrome.storage.local.get(['currentURL'], function(result) {
             if (containerEl.length > 0) {
                 // Both Blacklisted
                 if (isDomainBlacklisted === true && isPageBlacklisted === true) {
-                    console.log('Both domain and page are blacklisted');
+                    //console.log('Both domain and page are blacklisted');
                     //popupPrefixSpecific.textContent = 'Un-Blacklist';
                     popupPrefixDomain.textContent = 'Un-Blacklist';
                     //siteSpecificEl.textContent = 'This Specific Page';
                     siteEntireEl.textContent = hostnameUrl;
                     function popupHandler(url) {
                         if (blacklists.indexOf(url) !== -1) {
-                            console.log(blacklists);
+                            //console.log(blacklists);
                             let indexOfItemToBeRemoved = blacklists.indexOf(url);
-                            console.log(indexOfItemToBeRemoved);
+                            //console.log(indexOfItemToBeRemoved);
                             let reassembledArray = sliceAndConcatArray(blacklists, indexOfItemToBeRemoved);
                             chrome.storage.local.set({blacklistedURLS: reassembledArray});
-                            console.log(url, reassembledArray);
+                            //console.log(url, reassembledArray);
                             refreshPopup();
                         } else {
-                            console.log('tried to unblacklist but' + url + 'was never inside blacklists', blacklists);
+                            //console.log('tried to unblacklist but' + url + 'was never inside blacklists', blacklists);
                         }
                     };
 
@@ -123,7 +123,7 @@ chrome.storage.local.get(['currentURL'], function(result) {
                     }, false);
 
                 } else if (isDomainBlacklisted === true) {
-                    console.log('Only domain is blacklisted');
+                    //console.log('Only domain is blacklisted');
                     // Only Domain blacklisted, aka isPageSpecific === false
                     popupPrefixDomain.textContent = 'Un-Blacklist';
                     // !-- Handle if true and false, need to do the below execution then of push and stuff
@@ -131,15 +131,15 @@ chrome.storage.local.get(['currentURL'], function(result) {
                     popupPrefixSpecific.textContent = 'Blacklist';
                     siteSpecificEl.textContent = 'This Specific Page';
                     function popupHandler(url) {
-                        console.log(blacklists);
+                        //console.log(blacklists);
                         if (blacklists.indexOf(url) === -1) {
                             blacklists.push(url);
                         } else {
                             let indexOfItemToBeRemoved = blacklists.indexOf(url);
-                            console.log(indexOfItemToBeRemoved);
+                            //console.log(indexOfItemToBeRemoved);
                             let reassembledArray = sliceAndConcatArray(blacklists, indexOfItemToBeRemoved);
                             chrome.storage.local.set({blacklistedURLS: reassembledArray});
-                            console.log(url, reassembledArray);
+                            //console.log(url, reassembledArray);
                         }
                         refreshPopup();
                     };
@@ -152,7 +152,7 @@ chrome.storage.local.get(['currentURL'], function(result) {
                         popupHandler(hostnameUrl);
                     }, false);
                 } else {
-                    console.log('Only page is blacklisted');
+                    //console.log('Only page is blacklisted');
                     // isPageBlackListed === true
                     popupPrefixSpecific.textContent = 'Un-Blacklist';
                     popupPrefixDomain.textContent = 'Blacklist';
@@ -160,15 +160,15 @@ chrome.storage.local.get(['currentURL'], function(result) {
                     siteEntireEl.textContent = hostnameUrl;
                     siteSpecificEl.textContent = 'This Specific Page';
                     function popupHandler(url) {
-                        console.log(blacklists);
+                        //console.log(blacklists);
                         if (blacklists.indexOf(url) === -1) {
                             blacklists.push(url);
                         } else {
                             let indexOfItemToBeRemoved = blacklists.indexOf(url);
-                            console.log(indexOfItemToBeRemoved);
+                            //console.log(indexOfItemToBeRemoved);
                             let reassembledArray = sliceAndConcatArray(blacklists, indexOfItemToBeRemoved);
                             chrome.storage.local.set({blacklistedURLS: reassembledArray});
-                            console.log(url, reassembledArray);
+                            //console.log(url, reassembledArray);
                         }
                         refreshPopup();
                     };
@@ -184,9 +184,9 @@ chrome.storage.local.get(['currentURL'], function(result) {
             }
     
         } else {
-            console.log('No blacklists');
+            //console.log('No blacklists');
             if (siteSpecificEl) {
-                console.log(hostnameUrl, url);
+                //console.log(hostnameUrl, url);
                 // URL or domain not blacklisted
                 // Do blacklist related things here
                 popupPrefixSpecific.textContent = 'Blacklist';
@@ -198,10 +198,10 @@ chrome.storage.local.get(['currentURL'], function(result) {
                     if (blacklists.indexOf(url) === -1) {
                         blacklists.push(url);
                         chrome.storage.local.set({blacklistedURLS: blacklists});
-                        console.log(blacklists);
+                        //console.log(blacklists);
                         refreshPopup();
                     } else {
-                        console.log('tried to blacklist but' + url + 'was already inside blacklists', blacklists);
+                        //console.log('tried to blacklist but' + url + 'was already inside blacklists', blacklists);
                     }
                 };
 
@@ -225,12 +225,12 @@ chrome.storage.local.get(['currentURL'], function(result) {
             siteErrorNode.style.marginTop = '10px';
             siteErrorNode.style.lineHeight = '100px';
             siteErrorNode.appendChild(siteErrorTextNode);
-            console.log(siteErrorNode);
+            //console.log(siteErrorNode);
             containerEl = document.createElement('div');
             containerEl.className = 'defineIt-container';
             containerEl.appendChild(siteErrorNode);
             document.getElementsByTagName('body')[0].appendChild(containerEl);
-            console.log(containerEl);
+            //console.log(containerEl);
         };
     }
 });

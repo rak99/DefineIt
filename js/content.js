@@ -1,11 +1,12 @@
+// !-- Add input and textarea functionality, look at these 2 resources for help
+ // - https://github.com/Codecademy/textarea-helper
+ // - https://github.com/component/textarea-caret-position
 async function callAPI(word, popupNode) {
     let dictionaryObject = await checkLocalDictionary(word);
-    console.log('CALL API');
     let language = 'en';
     let definitions = [];
     let dictionary_definitions = [];
     let dictionary_words = [];
-    console.log(dictionaryObject);
     if (dictionaryObject.dictionaryDefinitions) {
         dictionary_definitions = dictionaryObject.dictionaryDefinitions;
         dictionary_words = dictionaryObject.dictionaryWords;
@@ -23,11 +24,9 @@ async function callAPI(word, popupNode) {
 
             let API_Word = JSON.parse(request.data).results[0].id;
             dictionary_words.push(API_Word);
-            console.log(dictionary_words);
             chrome.storage.local.set({dictionary_word_array: dictionary_words});
             let API_resp_data = JSON.parse(request.data).results;
             dictionary_definitions.push(API_resp_data);
-            console.log(dictionary_definitions);
             chrome.storage.local.set({dictionary_data: dictionary_definitions});
             let id = API_resp_data.id;
             let type = API_resp_data.type;
@@ -36,13 +35,10 @@ async function callAPI(word, popupNode) {
             definitionsNode.className = 'definitionsNode';
             // language = elt.language
             // Det different lexicalCategories
-            console.log(popupNode);
             let wordNode = popupNode.querySelectorAll('#defineIt-wordNode')[0];
-            console.log(wordNode);
             wordNode.textContent = word;
             for (let elt of API_resp_data) {
                 APIword = elt.word;
-                console.log(elt);
                 for (let elts of elt.lexicalEntries) {
                     let definitionsNode = document.createElement('div');
                     definitionsNode.className = 'definitionsNode';
@@ -129,7 +125,6 @@ async function callAPI(word, popupNode) {
 function fetchPopupData(word, popupNode) {
     checkLocalDictionary(word)
     .then((res) => {
-        console.log(res);
         if (res !== 'CallAPI') {
         // Do data stuff for both
         let dictionary_data = [];
@@ -150,7 +145,6 @@ function fetchPopupData(word, popupNode) {
         wordNode.textContent = word;
         for (let elt of API_resp_data) {
             APIword = elt.word;
-            console.log(elt);
             for (let elts of elt.lexicalEntries) {
                 let definitionsNode = document.createElement('div');
                 definitionsNode.className = 'definitionsNode';
@@ -247,22 +241,18 @@ async function checkLocalDictionary(word) {
     return new Promise(function (resolve, reject) {
         let dictionaryObject = {};
         chrome.storage.local.get(['dictionary_word_array'], function(res) {
-            console.log(res);
             if (res.dictionary_word_array) {
                 let dictionaryWords = res.dictionary_word_array;
                 let wordFoundInDictionaryArrIndex = dictionaryWords.indexOf(word) !== -1;
-                console.log(res, wordFoundInDictionaryArrIndex);
                 if (wordFoundInDictionaryArrIndex === true) {
                     let wordIndex = dictionaryWords.indexOf(word);
                     chrome.storage.local.get(['dictionary_data'], function(res) {
-                        console.log(res);
                         if (res.dictionary_data) {
                             dictionaryObject = {
                                 dictionaryDefinitions: res.dictionary_data,
                                 dictionaryWords: dictionaryWords,
                                 wordIndex: wordIndex
                             };
-                            console.log(dictionaryObject);
                             resolve(dictionaryObject);
                         }
                     });
@@ -312,21 +302,22 @@ function popupIcon(node, word, boldPosition) {
     document.getElementsByTagName('body')[0].insertBefore(iconPopup, document.getElementsByTagName('body')[0].firstChild);
     const showPopup = async (e) => {
         if (e.which === 1) {
-
             // !-- Remove if else later if I decide a single click outside popup should close with contextMenu open
             let iconPopupPositions = iconPopup.getBoundingClientRect();
             let iconPopupLeftToRight = iconPopupPositions.x + iconPopupPositions.width;
             let iconPopupTopToBottom = iconPopupPositions.y + iconPopupPositions.height;
-            var x = event.clientX;     // Get the horizontal coordinate
-            var y = event.clientY;     // Get the vertical coordinate
+
+            let x = e.clientX     // Get the horizontal coordinate
+            let y = e.clientY;     // Get the vertical coordinate
 
             document.getElementById('DefineItTextToBold').removeAttribute('id');
-            document.getElementById('defineIt-iconNode').remove();
+            document.getElementById('defineIt-iconNode').remove();            
+
             // !-- Above fixed what bottom may be able to but better, not sure yet
             // !-- document.getElementById('DefineItTextToBold').setAttribute('contenteditable',true);
+
             if ( ( x < (iconPopupPositions.x) || x > iconPopupLeftToRight ) || y < (iconPopupPositions.y) || y > iconPopupTopToBottom ) {
                 window.removeEventListener('click', showPopup, false);
-                console.log('SHOULD BE OUTSIDE Icon', x, y, iconPopupPositions, iconPopupLeftToRight, iconPopupTopToBottom);
                 iconPopup.style.left = (boldPosition.left - iconPopupPositions.left + 'px') + iconPopup.offsetWidth;
                 // Popup should be removed, add mouseup listener back
                 // Do this on node one as well if clicked outside
@@ -349,7 +340,6 @@ function popupIcon(node, word, boldPosition) {
                 // Do loading screen
                 fetchPopupData(word, popupNodeBody);
             }
-            console.log('clicked e.which = 1');
         } else {
             //contextMenuExists = false;
         }
@@ -361,15 +351,14 @@ function popupIcon(node, word, boldPosition) {
             let popupNodePositions = popupNode.getBoundingClientRect();
             let popupNodeLeftToRight = popupNodePositions.x + popupNodePositions.width;
             let popupNodeTopToBottom = popupNodePositions.y + popupNodePositions.height;
-            var x = event.clientX; // Get the horizontal coordinate
-            var y = event.clientY; // Get the vertical coordinate
+            let x = e.clientX; // Get the horizontal coordinate
+            let y = e.clientY; // Get the vertical coordinate
 
             // !-- Above fixed what bottom may be able to but better, not sure yet
             // !-- document.getElementById('DefineItTextToBold').setAttribute('contenteditable',true);
             if ( ( x < (popupNodePositions.x) || x > popupNodeLeftToRight ) || y < (popupNodePositions.y) || y > popupNodeTopToBottom ) {
                 document.getElementById('defineIt-popupNode').remove();
                 window.removeEventListener('click', showPopupDefinition, false);
-                console.log('SHOULD BE OUTSIDE Icon', x, y, popupNodePositions, popupNodeLeftToRight, popupNodeTopToBottom);
                 popupNode.style.left = (boldPosition.left - popupNodePositions.left + 'px') + popupNode.offsetWidth;
                 // Popup should be removed, add mouseup listener back
                 // Do this on node one as well if clicked outside
@@ -379,7 +368,6 @@ function popupIcon(node, word, boldPosition) {
             //contextMenuExists = false;
         }
     };
-
     window.addEventListener('click', showPopup, false);
 }
 
@@ -388,7 +376,7 @@ async function getNodesAndStartPopup(node, word, boldPosition) {
     let iconNode = await fetchHTMLResource('../html/iconPopup.html');
 
     let wordDOMChildrenArr = [...node.childNodes].toString();
-    if (node.nodeName !== 'INPUT' && wordDOMChildrenArr.indexOf('HTMLInputElement') === -1) {
+    if (node.nodeName !== 'INPUT' && wordDOMChildrenArr.indexOf('HTMLInputElement') === -1 && node.nodeName !== 'TEXTAREA' && wordDOMChildrenArr.indexOf('HTMLTextAreaElement') === -1) {
 
         var rangeNew = window.getSelection().getRangeAt(0);
         span = document.createElement('span');
@@ -410,7 +398,6 @@ function checkIfWord(words, word) {
     let wordsArrToJoinedString = words.join(' ');
 
     if (wordsArrToJoinedString.indexOf(word.toLowerCase()) !== -1) {
-
         //Get focusNode and send it to
         let node = window.getSelection().focusNode;
         if (node)
@@ -445,7 +432,6 @@ async function fetchHTMLResource(file) {
     })
     .then((response) => response.text())
     .then((html) => {
-        console.log(html);
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         return doc;
@@ -457,8 +443,6 @@ function checkWordsInMouseUp(e) {
 
     // Check if word contained in mouseUp, if true then call fetchResource
     if (e.which === 1) {
-
-        console.log('left click');
         let trimmedSelection = window.getSelection().toString().trim();
         if (trimmedSelection)
             fetchWordResource('../wordsarray.json', trimmedSelection)
@@ -524,9 +508,7 @@ function selectElement(element) {
 
 // Check blacklistedURLS for current URL, if blacklisted return, else add eventListener
 chrome.storage.local.get(['blacklistedURLS'], async function(res) {
-
         let isBlacklisted = await checkIfBlacklisted(res);
-        console.log(isBlacklisted);
         if (isBlacklisted === false)
             window.addEventListener('mouseup', checkWordsInMouseUp, false);
 

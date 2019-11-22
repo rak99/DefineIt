@@ -25,7 +25,6 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     chrome.storage.local.set({currentURL: currentURL});
     chrome.runtime.onMessage.addListener(
         function(request, sender, sendResponse) {
-            console.log(request);
             if (request.text === 'refreshContent') {
                 let tabid = currentURL.id
                 chrome.tabs.reload(currentURL.id, {bypassCache: false});
@@ -67,7 +66,6 @@ chrome.runtime.onMessage.addListener(
                 count = 0;
             }, 60000);
         } */
-        console.log('api call');
         var url = request.url;
         count+=1;
 /*         chrome.storage.local.get(['API_CREDENTIALS'], function(result) {
@@ -110,7 +108,6 @@ chrome.runtime.onMessage.addListener(
                 .then(response => response.text())
                 .then((text) => {
                     //console.log(text);
-                    console.log('HELLO');
                     chrome.tabs.sendMessage(activeTabId, {text: 'API_RESPONSE', data: text});
                 })
                 //chrome.runtime.sendMessage({text: 'API_RESPONSE', data: text})

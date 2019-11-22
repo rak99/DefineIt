@@ -15,7 +15,7 @@
     "background": {
         "scripts": ["./js/background.js"]
     },
-    "description": "Ever wondered what a word meant but was too lazy to look it up? Well no more! This extension makes it super easy to find the definition of those mysterious words - simply highlight the word with your mouse and you're good to go!",
+    "description": "Ever wondered what a word meant but was too lazy to look it up? No more! This extension makes it effortless to find its definition",
     "author": "Rhenier Kloppers",
     "browser_action": {
         "default_icon": "./icons/256.png",

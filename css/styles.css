@@ -217,18 +217,18 @@ table .sistemas:hover {
 	}
   }
 
-::-webkit-scrollbar {
+/* .selectedWord > ::-webkit-scrollbar {
 width: 8px !important;
-}
+} */
 
 /* Track */
-::-webkit-scrollbar-track {
+/* .selectedWord > ::-webkit-scrollbar-track {
 box-shadow: inset 0 0 5px grey !important;
 border-radius: 5px;
-}
+} */
 
 /* Handle */
-::-webkit-scrollbar-thumb {
+/* .selectedWord > ::-webkit-scrollbar-thumb {
 background: rgb(32, 31, 34) !important;
 border-radius: 5px;
-}
+} */
