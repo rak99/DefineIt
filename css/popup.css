@@ -65,7 +65,7 @@
 .defineIt-blacklist-container {
     margin-top: 5%;
 }
-.icon {
+.defineIt-icon {
     display: inline-block;
     width: 1em;
     height: 1em;
@@ -73,12 +73,12 @@
     stroke: currentColor;
     fill: currentColor;
 }
-.refreshIconContainer-class {
+.defineIt-refreshIconContainer-class {
     display: none;
     width: 300px;
     height: 120px;
 }
-.refreshButton {
+.defineIt-refreshButton {
     border: 0;
     background-color: inherit;
     justify-content: center;
@@ -89,7 +89,7 @@
     align-content: center;
     align-self: center;
 }
-.refreshButton:hover {
+.defineIt-refreshButton:hover {
     cursor: pointer;
     overflow: hidden;
     -webkit-user-select: none;
@@ -109,7 +109,7 @@
     transition: background-color .2s ease-out;
     box-shadow: 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12);
 }
-.refreshIcon {
+.defineIt-refreshIcon {
     width: 64px !important;
     height: 64px !important;
 }

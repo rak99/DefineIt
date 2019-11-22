@@ -1,4 +1,4 @@
-.selectedWord {
+.defineIt-selectedWord {
 /* 	resize: both; */
 	overflow: auto;
     position: absolute;
@@ -27,7 +27,7 @@
             user-select: none; /* Non-prefixed version, currently
 								  supported by Chrome and Opera */
 }
-.popupIcon {
+.defineIt-popupIcon {
 	overflow: auto;
     position: absolute;
     z-index: 9999999;
@@ -50,15 +50,12 @@
             user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome and Opera */
 }
-.popupIcon:hover {
+.defineIt-popupIcon:hover {
 	cursor: pointer;
 	opacity: 1;
 }
 
-table .sistemas:hover {
-	background: #1E1F26;
-  }
-.selectedWord:after, .selectedWord:before {
+.defineIt-selectedWord:after, .defineIt-selectedWord:before {
 	bottom: 100%;
 	left: 10%;
 	border: solid transparent;
@@ -68,105 +65,84 @@ table .sistemas:hover {
 	position: absolute;
 	pointer-events: none;
 }
-.selectedWord:after {
+.defineIt-selectedWord:after {
 	border-color: rgba(47, 79, 79, 0);
 	border-bottom-color: #2F4F4F;
 	border-width: 10px;
 	margin-left: -10px;
 }
-.selectedWord:before {
+.defineIt-selectedWord:before {
 	border-color: rgba(0, 0, 0, 0);
 	border-width: 14px;
 	margin-left: -14px;
 }
-.countdownTimer {
-	position: absolute;
-	background: rgb(1, 2, 2);
-  z-index: 1;
-  width: fit-content;
-  color: white;
-  padding: 1px;
-  margin-top: 8px;
-  font-family: Calibri;
-  -moz-user-select: none;
-  -webkit-touch-callout: none; /* iOS Safari */
-  -webkit-user-select: none; /* Safari */
-   -khtml-user-select: none; /* Konqueror HTML */
-	 -moz-user-select: none; /* Firefox */
-	  -ms-user-select: none; /* Internet Explorer/Edge */
-		  user-select: none; /* Non-prefixed version, currently
-								supported by Chrome and Opera */
-}
-.highlight { 
-	background-color: yellow; 
-}
-.lexicalCategory {
+.defineIt-lexicalCategory {
 	font-size: 22px;
 	font-family: 'Times New Roman', Times, serif;
 }
-.headerNode {
+.defineIt-headerNode {
 	display: flex;
 	height: 32px;
 }
-.imgNode {
+.defineIt-imgNode {
     width: 32px;
     height: 100%;
 }
-.middleNode {
+.defineIt-middleNode {
 
 	background-color: #201f22;
     border: 2px solid #3A3A3D;
 }
-.flexRightNode {
+.defineIt-flexRightNode {
     width: 100%;
     background-color: #09080a;
     border-left: 2px solid #3A3A3D;
 }	
-.footerNode {
+.defineIt-footerNode {
 	display: flex;
 	height: 66px;
 	background: url(https://i.imgur.com/4at5vxk.jpg) no-repeat round;
 }
-.wordNode {
+.defineIt-wordNode {
 		margin-left: 5px;
 		font-size: 35px;		
 		color: lightblue;
 		margin: 10px;
 		font-weight: 600;
 }
-.lexicalCategoryDiv {
+.defineIt-lexicalCategoryDiv {
 	margin: 10px;
     font-size: 130%;
 }
-.lexicalCategorySubDiv {
+.defineIt-lexicalCategorySubDiv {
 	margin-left: 1%;
 	margin-top: 10px;
 }
-.lexicalCategoryP {
+.defineIt-lexicalCategoryP {
 	font-size: 135%;
 	font-style: italic;
 	margin: 0px 0px 8px 0px;
 	text-decoration: underline;
 	text-decoration-color: darkseagreen;
 }
-.definitionsNode {
+.defineIt-definitionsNode {
 }
-.definitions {
+.defineIt-definitions {
 	display: flex;
 	margin-top: 25px;
 	margin-bottom: 5px;
 	line-height: 22px;
 }
-.example {
+.defineIt-example {
 	margin-left: 8%;
 	color: #ADD8E6;
 	font-style: italic;
 	display: flex;
 }
-.forwardSlashes {
+.defineIt-forwardSlashes {
 	margin-right: 2%;
 }
-.definitionSpan {
+.defineIt-definitionSpan {
 	margin-right: 5%;
 }
 #DefineItTextToBold {
@@ -202,12 +178,12 @@ table .sistemas:hover {
 	animation-delay: -0.16s;
   }
   
-  @-webkit-keyframes sk-bouncedelay {
+  @-webkit-keyframes defineIt-sk-bouncedelay {
 	0%, 80%, 100% { -webkit-transform: scale(0) }
 	40% { -webkit-transform: scale(1.0) }
   }
   
-  @keyframes sk-bouncedelay {
+  @keyframes defineIt-sk-bouncedelay {
 	0%, 80%, 100% { 
 	  -webkit-transform: scale(0);
 	  transform: scale(0);

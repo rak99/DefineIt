@@ -32,7 +32,7 @@ async function callAPI(word, popupNode) {
             let type = API_resp_data.type;
             let lexicalCategoryDiv = popupNode.querySelectorAll('#defineIt-lexicalCategoryDiv')[0];
             let definitionsNode = document.createElement('div');
-            definitionsNode.className = 'definitionsNode';
+            definitionsNode.className = 'defineIt-definitionsNode';
             // language = elt.language
             // Det different lexicalCategories
             let wordNode = popupNode.querySelectorAll('#defineIt-wordNode')[0];
@@ -41,11 +41,11 @@ async function callAPI(word, popupNode) {
                 APIword = elt.word;
                 for (let elts of elt.lexicalEntries) {
                     let definitionsNode = document.createElement('div');
-                    definitionsNode.className = 'definitionsNode';
+                    definitionsNode.className = 'defineIt-definitionsNode';
                     let lexicalCategorySubDiv = document.createElement('div');
-                    lexicalCategorySubDiv.className = 'lexicalCategorySubDiv';
+                    lexicalCategorySubDiv.className = 'defineIt-lexicalCategorySubDiv';
                     let lexicalCategoryP = document.createElement('p');
-                    lexicalCategoryP.className = 'lexicalCategoryP';
+                    lexicalCategoryP.className = 'defineIt-lexicalCategoryP';
                     lexicalCategoryP.textContent = elts.lexicalCategory.id;
 
                     lexicalCategorySubDiv.appendChild(lexicalCategoryP);
@@ -54,15 +54,15 @@ async function callAPI(word, popupNode) {
                             for (let eltz of elts.entries[0].senses) {
                                 let definitionSpan = document.createElement('div');
                                 definitionSpan.textContent = '-';
-                                definitionSpan.className = 'definitionSpan';
+                                definitionSpan.className = 'defineIt-definitionSpan';
                                 //let definition = eltz.definitions[0];
                                 let definition = document.createElement('span');
-                                definition.className = 'definition';
+                                definition.className = 'defineIt-definition';
                                 let example = document.createElement('span');
 
-                                example.className = 'example';
+                                example.className = 'defineIt-example';
                                 let forwardSlashes = document.createElement('span');
-                                forwardSlashes.className = 'forwardSlashes';
+                                forwardSlashes.className = 'defineIt-forwardSlashes';
                                 forwardSlashes.textContent = '//';
                                 let exampleText = document.createElement('span');
                                 // !-- Maybe don't do this as an else but 2 if's
@@ -73,7 +73,7 @@ async function callAPI(word, popupNode) {
                                     if (eltz.subsenses[0].examples) {
                                         // !-- Maybe do a loop for this
                                         exampleText.textContent = eltz.subsenses[0].examples[0].text;
-                                        exampleText.className = 'exampleText';
+                                        exampleText.className = 'defineIt-exampleText';
                                         example.appendChild(forwardSlashes);
                                         example.appendChild(exampleText);
                                     }
@@ -81,7 +81,7 @@ async function callAPI(word, popupNode) {
                                 if (eltz.examples) {
                                     if (eltz.examples.length > 0) {
                                         exampleText.textContent = eltz.examples[0].text;
-                                        exampleText.className = 'exampleText';
+                                        exampleText.className = 'defineIt-exampleText';
                                         example.appendChild(forwardSlashes);
                                         example.appendChild(exampleText);
                                     }
@@ -91,7 +91,7 @@ async function callAPI(word, popupNode) {
                                 let definitionNode = document.createElement('p');
                                 definitionNode.appendChild(definitionSpan);
                                 definitionNode.appendChild(definition);
-                                definitionNode.className = 'definitions';
+                                definitionNode.className = 'defineIt-definitions';
                                 definitionsNode.appendChild(definitionNode);
                                 definitionsNode.appendChild(example);
                                 definitions.push(definitionNode);
@@ -100,7 +100,7 @@ async function callAPI(word, popupNode) {
                             lexicalCategoryDiv.appendChild(lexicalCategorySubDiv);
                         } else {
                             let errorDefinitionsNode = document.createElement('div');
-                                errorDefinitionsNode.className = 'definitionsNode';
+                                errorDefinitionsNode.className = 'defineIt-definitionsNode';
                                 errorDefinitionsNode.textContent = 'Something must\'e gone wrong, we couldn\'t find this word in our dictionary';
     
                             lexicalCategorySubDiv.appendChild(errorDefinitionsNode);
@@ -115,7 +115,7 @@ async function callAPI(word, popupNode) {
                 }
                 
                 let footerNode = document.createElement('div');
-                    footerNode.className = 'footerNode';
+                    footerNode.className = 'defineIt-footerNode';
             }
             
         }
@@ -140,18 +140,18 @@ function fetchPopupData(word, popupNode) {
         let id = API_resp_data.id;
         let type = API_resp_data.type;
         let definitionsNode = document.createElement('div');
-        definitionsNode.className = 'definitionsNode';
+        definitionsNode.className = 'defineIt-definitionsNode';
         let wordNode = popupNode.querySelectorAll('#defineIt-wordNode')[0];
         wordNode.textContent = word;
         for (let elt of API_resp_data) {
             APIword = elt.word;
             for (let elts of elt.lexicalEntries) {
                 let definitionsNode = document.createElement('div');
-                definitionsNode.className = 'definitionsNode';
+                definitionsNode.className = 'defineIt-definitionsNode';
                 let lexicalCategorySubDiv = document.createElement('div');
-                lexicalCategorySubDiv.className = 'lexicalCategorySubDiv';
+                lexicalCategorySubDiv.className = 'defineIt-lexicalCategorySubDiv';
                 let lexicalCategoryP = document.createElement('p');
-                lexicalCategoryP.className = 'lexicalCategoryP';
+                lexicalCategoryP.className = 'defineIt-lexicalCategoryP';
                 lexicalCategoryP.textContent = elts.lexicalCategory.id;
 
                 lexicalCategorySubDiv.appendChild(lexicalCategoryP);
@@ -160,15 +160,15 @@ function fetchPopupData(word, popupNode) {
                         for (let eltz of elts.entries[0].senses) {
                             let definitionSpan = document.createElement('div');
                             definitionSpan.textContent = '-';
-                            definitionSpan.className = 'definitionSpan';
+                            definitionSpan.className = 'defineIt-definitionSpan';
                             //let definition = eltz.definitions[0];
                             let definition = document.createElement('span');
-                            definition.className = 'definition';
+                            definition.className = 'defineIt-definition';
                             let example = document.createElement('span');
 
-                            example.className = 'example';
+                            example.className = 'defineIt-example';
                             let forwardSlashes = document.createElement('span');
-                            forwardSlashes.className = 'forwardSlashes';
+                            forwardSlashes.className = 'defineIt-forwardSlashes';
                             forwardSlashes.textContent = '//';
                             let exampleText = document.createElement('span');
                             // !-- Maybe don't do this as an else but 2 if's
@@ -179,7 +179,7 @@ function fetchPopupData(word, popupNode) {
                                 if (eltz.subsenses[0].examples) {
                                     // !-- Maybe do a loop for this
                                     exampleText.textContent = eltz.subsenses[0].examples[0].text;
-                                    exampleText.className = 'exampleText';
+                                    exampleText.className = 'defineIt-exampleText';
                                     example.appendChild(forwardSlashes);
                                     example.appendChild(exampleText);
                                 }
@@ -187,7 +187,7 @@ function fetchPopupData(word, popupNode) {
                             if (eltz.examples) {
                                 if (eltz.examples.length > 0) {
                                     exampleText.textContent = eltz.examples[0].text;
-                                    exampleText.className = 'exampleText';
+                                    exampleText.className = 'defineIt-exampleText';
                                     example.appendChild(forwardSlashes);
                                     example.appendChild(exampleText);
                                 }
@@ -197,7 +197,7 @@ function fetchPopupData(word, popupNode) {
                             let definitionNode = document.createElement('p');
                             definitionNode.appendChild(definitionSpan);
                             definitionNode.appendChild(definition);
-                            definitionNode.className = 'definitions';
+                            definitionNode.className = 'defineIt-definitions';
                             definitionsNode.appendChild(definitionNode);
                             definitionsNode.appendChild(example);
                             definitions.push(definitionNode);
@@ -206,7 +206,7 @@ function fetchPopupData(word, popupNode) {
                         lexicalCategoryDiv.appendChild(lexicalCategorySubDiv);
                     } else {
                         let errorDefinitionsNode = document.createElement('div');
-                            errorDefinitionsNode.className = 'definitionsNode';
+                            errorDefinitionsNode.className = 'defineIt-definitionsNode';
                             errorDefinitionsNode.textContent = 'Something must\'e gone wrong, we couldn\'t find this word in our dictionary';
 
                         lexicalCategorySubDiv.appendChild(errorDefinitionsNode);
@@ -221,7 +221,7 @@ function fetchPopupData(word, popupNode) {
             }
             
             let footerNode = document.createElement('div');
-                footerNode.className = 'footerNode';
+                footerNode.className = 'defineIt-footerNode';
         }
 
         // Then middle div container
@@ -229,7 +229,7 @@ function fetchPopupData(word, popupNode) {
             popupNode.querySelectorAll('#defineIt-loading')[0].remove();
         }
         let footerNode = document.createElement('div');
-            footerNode.className = 'footerNode';
+            footerNode.className = 'defineIt-footerNode';
         } else {
             callAPI(word, popupNode);
         }

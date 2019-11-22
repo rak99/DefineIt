@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "DefineIt",
     "short_name": "DefineIt",
-    "version": "0.1",
+    "version": "0.11",
     "content_scripts": [
         {
             "matches": [
