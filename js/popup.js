@@ -1,6 +1,6 @@
 console.log('popup active');
 let currentURL = '';
-l//et blacklists = '';
+//let blacklists = '';
 
 chrome.storage.local.get(['blacklistedURLS'], function(res) {
     //console.log('Currently blacklisted URLS are', res);
