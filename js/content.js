@@ -265,7 +265,7 @@ async function checkLocalDictionary(word) {
         });
     });
 };
-
+//chrome-extension://oggcbcimbjpahiohkgphecjjaedgfbhm/icons/256.png
 function positionElement(el, boldPosition, documentHeight, documentWidth) {
 
     el.style.left = (boldPosition.left) + span.offsetWidth + 'px';
@@ -283,6 +283,8 @@ function positionElement(el, boldPosition, documentHeight, documentWidth) {
 }
 
 function popupIcon(node, word, boldPosition) {
+    let iconUrl = '';
+    let browserUsed = '';
     // !-- handle errors tomorrow in console, also click doesn't close it, maybe due to errors tho.
     var body = document.body.firstChild,
     html = document.documentElement;
@@ -303,6 +305,23 @@ function popupIcon(node, word, boldPosition) {
     //let arrowUp = document.createElement('div');
     //arrowUp.className = 'defineIt-arrow-up';
     //positionElement(arrowUp, boldPosition, documentHeight, documentWidth);
+
+    if (typeof chrome !== "undefined") {
+        if (typeof browser !== "undefined" && typeof browser !== 'string') {
+            console.log(typeof browser === 'string');
+            iconUrl = browser.runtime.getURL('icons/256.png');
+            iconPopup.style.background = `url(${iconUrl}) no-repeat round`;
+            browserUsed = 'firefox';
+          //Firefox
+        } else {
+            browserUsed = 'chrome';
+          //Chrome
+          iconPopup.style.background = 'url("chrome-extension://oggcbcimbjpahiohkgphecjjaedgfbhm/icons/256.png") no-repeat round';
+        }
+      } else {
+        //Edge
+    }
+
     document.getElementsByTagName('body')[0].insertBefore(iconPopup, document.getElementsByTagName('body')[0].firstChild);
     //document.getElementsByTagName('body')[0].insertBefore(arrowUp, document.getElementsByTagName('body')[0].firstChild);
     var ro = new ResizeObserver( entries => {
@@ -359,6 +378,11 @@ function popupIcon(node, word, boldPosition) {
                 // Get popupNode and append loading screen to it, then remove it after dictionary is processed
                 let popupNode = await fetchHTMLResource('../html/definitionPopup.html');
                 let popupNodeBody = popupNode.getElementById('defineIt-popupNode');
+                    if (browserUsed === 'chrome') {                        
+                        popupNode.getElementById('defineIt-imgNode').src = 'chrome-extension://oggcbcimbjpahiohkgphecjjaedgfbhm/icons/256.png'
+                    } else if (browserUsed === 'firefox') {
+                        popupNode.getElementById('defineIt-imgNode').src = iconUrl;
+                    }
                     popupNodeBody.style.left = iconPopup.style.left;
                     popupNodeBody.style.top = iconPopup.style.top;
 
@@ -567,5 +591,5 @@ chrome.storage.local.get(['blacklistedURLS'], async function(res) {
 
         // pageIsBlacklisted = false;
         // Add mouse event listeners
-            
+        // let manifestUrl = browser.runtime.getURL('icons/256.png');
 });

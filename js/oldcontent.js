@@ -467,7 +467,7 @@ function popupIcon() {
                         window.removeEventListener('mouseleave', iconPopup);
                         window.removeEventListener('mousedown', showPopup, false);
                         document.getElementById('defineIt-iconNode').remove();
-                        chrome.extension.sendRequest({cmd: "read_file"}, function(html){
+                        chrome.extension.sendMessage({cmd: "read_file"}, function(html){
                             const parser = new DOMParser();
                             const doc = parser.parseFromString(html, 'text/html');
                             console.log(doc);

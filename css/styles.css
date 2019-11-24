@@ -40,7 +40,6 @@
 	font-size: 15px;
 	height: 32px !important;
 	width: 32px !important;
-	background: url('chrome-extension://oggcbcimbjpahiohkgphecjjaedgfbhm/icons/256.png') no-repeat round;
 	-moz-user-select: none;
 	-webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
@@ -101,7 +100,7 @@
 .defineIt-footerNode {
 	display: flex;
 	height: 66px;
-	background: url('chrome-extension://oggcbcimbjpahiohkgphecjjaedgfbhm/icons/256.png') no-repeat round;
+	/* background: url('chrome-extension://oggcbcimbjpahiohkgphecjjaedgfbhm/icons/256.png') no-repeat round; */
 }
 .defineIt-wordNode {
 		margin-left: 5px;

@@ -1,6 +1,8 @@
 let currentURL = '';
 let activeTabId = '';
 
+console.log(typeof browser === 'undefined');
+
 console.log('background active');
 
 var manifest = chrome.runtime.getManifest();
@@ -118,24 +120,6 @@ chrome.runtime.onMessage.addListener(
       }
     }
 );
-
-// Send spinner.html to content.js on request
-
-chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
-    if(request.cmd == "read_file") {
-        console.log('readFile');
-        let url = chrome.extension.getURL("html/spinner.html");
-        fetch(url, {
-            headers: {
-                dataType: 'html',
-                'Content-Type': 'text/html'
-            }
-        }).then(response => response.text())
-        .then((html) => {
-            sendResponse({html: html});
-        });
-    }
-});
 
 // Set chrome.local api keys
 /* chrome.storage.local.get(['API_CREDENTIALS'], function(result) {
