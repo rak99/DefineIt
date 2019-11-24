@@ -295,11 +295,36 @@ function popupIcon(node, word, boldPosition) {
          );
 
     let iconPopup = node.getElementById('defineIt-iconNode');
+    let textToBoldNode = document.getElementById('DefineItTextToBold');
 
     // Observe one or multiple elements
     window.removeEventListener('mouseup', checkWordsInMouseUp, false);
     positionElement(iconPopup, boldPosition, documentHeight, documentWidth);
+    //let arrowUp = document.createElement('div');
+    //arrowUp.className = 'defineIt-arrow-up';
+    //positionElement(arrowUp, boldPosition, documentHeight, documentWidth);
     document.getElementsByTagName('body')[0].insertBefore(iconPopup, document.getElementsByTagName('body')[0].firstChild);
+    //document.getElementsByTagName('body')[0].insertBefore(arrowUp, document.getElementsByTagName('body')[0].firstChild);
+    var ro = new ResizeObserver( entries => {
+        for (let entry of entries) {
+            const cr = entry.contentRect;
+            if (cr.width !== 0 || cr.height !== 0) {
+                let boldPositionLeft = getCoords(textToBoldNode).left;
+                let boldPositionTop = getCoords(textToBoldNode).top;
+                iconPopup.style.left = boldPositionLeft + iconPopup.offsetWidth - 5 + 'px';
+                iconPopup.style.top = boldPositionTop + 'px';
+            }
+        }
+    });
+    
+    ro.observe(document.body);
+
+/*     const resizingWindow = async (e) => {
+
+        document.removeEventListener('resize', resizingWindow, false);
+    }
+
+    document.addEventListener('resize', resizingWindow, false); */
     const showPopup = async (e) => {
         if (e.which === 1) {
             // !-- Remove if else later if I decide a single click outside popup should close with contextMenu open
@@ -310,21 +335,27 @@ function popupIcon(node, word, boldPosition) {
             let x = e.clientX     // Get the horizontal coordinate
             let y = e.clientY;     // Get the vertical coordinate
 
-            document.getElementById('DefineItTextToBold').removeAttribute('id');
             document.getElementById('defineIt-iconNode').remove();            
 
             // !-- Above fixed what bottom may be able to but better, not sure yet
             // !-- document.getElementById('DefineItTextToBold').setAttribute('contenteditable',true);
 
             if ( ( x < (iconPopupPositions.x) || x > iconPopupLeftToRight ) || y < (iconPopupPositions.y) || y > iconPopupTopToBottom ) {
+                // Disconnect observer
+                ro.disconnect(ro);
+                // Remove id, reset from start basically
+                document.getElementById('DefineItTextToBold').removeAttribute('id');
                 window.removeEventListener('click', showPopup, false);
                 iconPopup.style.left = (boldPosition.left - iconPopupPositions.left + 'px') + iconPopup.offsetWidth;
                 // Popup should be removed, add mouseup listener back
                 // Do this on node one as well if clicked outside
                 window.addEventListener('mouseup', checkWordsInMouseUp, false);
+
             } else {
+                ro.disconnect(ro);
                 window.removeEventListener('click', showPopup, false);
                 window.addEventListener('click', showPopupDefinition, false);
+
                 // Get popupNode and append loading screen to it, then remove it after dictionary is processed
                 let popupNode = await fetchHTMLResource('../html/definitionPopup.html');
                 let popupNodeBody = popupNode.getElementById('defineIt-popupNode');
@@ -337,6 +368,24 @@ function popupIcon(node, word, boldPosition) {
                 let middleNode = popupNode.getElementById('defineIt-middleNode');
                 middleNode.appendChild(spinnerBody);
                 document.getElementsByTagName('body')[0].insertBefore(popupNodeBody, document.getElementsByTagName('body')[0].firstChild);
+
+                popupNode = document.getElementById('defineIt-popupNode');
+                // Add resizeobserver for popupNode too
+                ro = new ResizeObserver( entries => {
+                    for (let entry of entries) {
+                        const cr = entry.contentRect;
+                        if (cr.width !== 0 || cr.height !== 0) {
+                            console.log('helloooooooooooooo');
+                            let boldPositionLeft = getCoords(textToBoldNode).left;
+                            let boldPositionTop = getCoords(textToBoldNode).top;
+                            popupNode.style.left = boldPositionLeft + 28 + 'px';
+                            popupNode.style.top = boldPositionTop + 'px';
+                        }
+                    }
+                });
+                
+                ro.observe(document.body);
+
                 // Do loading screen
                 fetchPopupData(word, popupNodeBody);
             }
@@ -357,6 +406,10 @@ function popupIcon(node, word, boldPosition) {
             // !-- Above fixed what bottom may be able to but better, not sure yet
             // !-- document.getElementById('DefineItTextToBold').setAttribute('contenteditable',true);
             if ( ( x < (popupNodePositions.x) || x > popupNodeLeftToRight ) || y < (popupNodePositions.y) || y > popupNodeTopToBottom ) {
+                // Disconnect observer
+                ro.disconnect(ro);
+                // Remove id, reset from start basically
+                document.getElementById('DefineItTextToBold').removeAttribute('id');
                 document.getElementById('defineIt-popupNode').remove();
                 window.removeEventListener('click', showPopupDefinition, false);
                 popupNode.style.left = (boldPosition.left - popupNodePositions.left + 'px') + popupNode.offsetWidth;
@@ -508,6 +561,7 @@ function selectElement(element) {
 
 // Check blacklistedURLS for current URL, if blacklisted return, else add eventListener
 chrome.storage.local.get(['blacklistedURLS'], async function(res) {
+
         let isBlacklisted = await checkIfBlacklisted(res);
         if (isBlacklisted === false)
             window.addEventListener('mouseup', checkWordsInMouseUp, false);

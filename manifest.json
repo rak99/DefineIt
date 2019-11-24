@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "DefineIt",
     "short_name": "DefineIt",
-    "version": "0.11",
+    "version": "0.12",
     "content_scripts": [
         {
             "matches": [
@@ -26,7 +26,8 @@
         "wordsarray.json",
         "html/spinner.html",
         "html/definitionPopup.html",
-        "html/iconPopup.html"
+        "html/iconPopup.html",
+        "icons/256.png"
     ],
     "permissions": [
         "file://*/*",

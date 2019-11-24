@@ -40,7 +40,7 @@
 	font-size: 15px;
 	height: 32px !important;
 	width: 32px !important;
-	background: url(https://i.imgur.com/Hgh0u2z.png) no-repeat round;
+	background: url('chrome-extension://oggcbcimbjpahiohkgphecjjaedgfbhm/icons/256.png') no-repeat round;
 	-moz-user-select: none;
 	-webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
@@ -48,7 +48,7 @@
        -moz-user-select: none; /* Firefox */
         -ms-user-select: none; /* Internet Explorer/Edge */
             user-select: none; /* Non-prefixed version, currently
-                                  supported by Chrome and Opera */
+								  supported by Chrome and Opera */
 }
 .defineIt-popupIcon:hover {
 	cursor: pointer;
@@ -101,7 +101,7 @@
 .defineIt-footerNode {
 	display: flex;
 	height: 66px;
-	background: url(https://i.imgur.com/4at5vxk.jpg) no-repeat round;
+	background: url('chrome-extension://oggcbcimbjpahiohkgphecjjaedgfbhm/icons/256.png') no-repeat round;
 }
 .defineIt-wordNode {
 		margin-left: 5px;
@@ -192,6 +192,19 @@
 	  transform: scale(1.0);
 	}
   }
+
+/* .defineIt-arrow-up {
+	width: 0; 
+	height: 0; 
+	border-left: 10px solid transparent;
+	border-right: 10px solid transparent;
+	border-bottom: 10px solid black;
+	border-bottom-width: 10x;
+    border-right-width: 8px;
+    border-left-width: 8px;
+	border-top-width: 8px;
+	z-index: 99999999;
+} */
 
 /* .selectedWord > ::-webkit-scrollbar {
 width: 8px !important;
