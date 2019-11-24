@@ -375,7 +375,6 @@ function popupIcon(node, word, boldPosition) {
                     for (let entry of entries) {
                         const cr = entry.contentRect;
                         if (cr.width !== 0 || cr.height !== 0) {
-                            console.log('helloooooooooooooo');
                             let boldPositionLeft = getCoords(textToBoldNode).left;
                             let boldPositionTop = getCoords(textToBoldNode).top;
                             popupNode.style.left = boldPositionLeft + 28 + 'px';

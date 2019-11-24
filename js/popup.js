@@ -1,4 +1,3 @@
-console.log('popup active');
 let currentURL = '';
 //let blacklists = '';
 
